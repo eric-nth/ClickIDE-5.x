@@ -47,7 +47,7 @@ void Addinfo(char info[]) {
 	aftertext += output_time();
 	aftertext += "\r\nInfo: ";
 	aftertext += info;
-	aftertext += "\r\n\r\n";
+	aftertext += "\r\n";
 	aftertext += nativetext;
 	SetDlgItemText(hwnd, ID_COMPILERES, aftertext.c_str());
 }
@@ -738,6 +738,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					break;
 				case CM_COMPILERUN:
 					SendMessage(hwnd, WM_COMMAND, CM_COMPILE, NULL);
+					Sleep(500);
 					SendMessage(hwnd, WM_COMMAND, CM_RUN, NULL);
 					break;
 					
