@@ -12,14 +12,14 @@
 using namespace std;
 HWND hwnd;
 string codealltmp = "";
-int wordsizepos = 3;
+int wordsizepos = 2;
 int wsizes[16] = {4,8,11,12,14,16,18,20,22,24,30,36,48,60,72,96};
 string fontname = "Consolas";
 bool fsaved=0, fopend=0, fcompiled=0;
 bool programmeexiterrorstatusflag = 1;
 unsigned long long variMsgCnt = 0;
 HINSTANCE g_hInst;
-char szFileName[MAX_PATH]="Untitled";
+char szFileName[MAX_PATH*10]="Untitled";
 HWND g_hStatusBar, g_hToolBar;
 bool hasstartopenfile = 0;
 char commandline[MAX_PATH*10] = "";
@@ -27,7 +27,30 @@ string lasttimestr;
 POINT cursorpoint;
 const char* g_szKeywords="asm auto bool break case catch char class const const_cast continue default delete do double dynamic_cast else enum explicit extern false finally float for friend goto if inline int long mutable namespace new operator private protected public register reinterpret_cast register return short signed sizeof static static_cast struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while";
 
+string output_time() {
+	time_t rawtime;
+   	time(&rawtime);   
+   	char pblgtime[20];
+	strftime(pblgtime, 20, "%Y-%m-%d %H-%M-%S", localtime(&rawtime));
+	string tttmps="";
+	tttmps.insert(0, pblgtime);
+	return tttmps;
+}
 
+void Addinfo(char info[]) {
+	char nativetext[100000];
+	GetDlgItemText(hwnd, ID_COMPILERES, nativetext, 100000);
+	string aftertext;
+	aftertext.clear();
+	aftertext += "-------------------------\r\n";
+	aftertext += "Time: ";
+	aftertext += output_time();
+	aftertext += "\r\nInfo: ";
+	aftertext += info;
+	aftertext += "\r\n\r\n";
+	aftertext += nativetext;
+	SetDlgItemText(hwnd, ID_COMPILERES, aftertext.c_str());
+}
 
 void SafeGetNativeSystemInfo(LPSYSTEM_INFO lpSystemInfo)  
     {  
@@ -71,16 +94,6 @@ BOOL runprocess(char szCommandLine[], int fwait, int fshow) {
 	return ret;
 }
 
-
-string output_time() {
-	time_t rawtime;
-   	time(&rawtime);   
-   	char pblgtime[20];
-	strftime(pblgtime, 20, "%Y-%m-%d %H-%M", localtime(&rawtime));
-	string tttmps="";
-	tttmps.insert(0, pblgtime);
-	return tttmps;
-}
 
 BOOL LoadFile(HWND hEdit, LPSTR pszFileName) {
 	HANDLE hFile;
@@ -198,14 +211,6 @@ BOOL DoFileOpen(HWND hwnd, char rt[]) {
 	}
 	return TRUE;
 }
-
-string getpasfn (char yufn[]) {
-	string rtttmp = "";
-	for (int i = 0; i < strlen(yufn) - 3; i++) {
-		rtttmp += yufn[i];
-	}
-	return rtttmp;
-}
 string getcppfn (char yufn[]) {
 	string rtttmp = "";
 	for (int i = 0; i < strlen(yufn) - 4; i++) {
@@ -223,11 +228,10 @@ string i_to_str(int int_num) {
 	return rt;
 }
 
-/*
-sptr_t SendEditor(unsigned int iMessage, uptr_t wParam = 0, sptr_t lParam = 0) {
-		SciFnDirect tmpscifndirect=(SciFnDirect)SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_GETDIRECTFUNCTION,0,0);
-        return tmpscifndirect((sptr_t)SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_GETDIRECTPOINTER,0,0), iMessage, wParam, lParam); 
-} */
+
+LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
+	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
+}
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
@@ -260,11 +264,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	char getallcodetmpstr[200000];
 	int linecount = 0;
 	string linenumtmptext;
-	int cursorx=0, cursory=0;
-	int cursorytmp=-1, cursorxtmp=-1;
-	bool cursorxtmpset = 0;
-	bool tosetcur = 0;
 	int inttmpnum;
+	string compileordertmp;
+	char szFileNametmp[MAX_PATH*10];
+	char compileresult[50000];
+	char szFileName2[MAX_PATH*10];
 	/*4.8-- 
 	if (tosetcur) {
 		SetCaretPos((cursorpoint.x-6)/(wsizes[wordsizepos]/2.0), (cursorpoint.y-2)/wsizes[wordsizepos]);
@@ -276,12 +280,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			GetWindowRect(hwnd,&rctA);//通过窗口句柄获得窗口的大小存储在rctA结构中
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
-			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-60/*CW_USEDEFAULT*/, wheight-120,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
+			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-60/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
 			CreateWindow("STATIC", "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0",WS_CHILD|WS_VISIBLE|WS_BORDER,0, 30, 60/*CW_USEDEFAULT*/, wheight-120,hwnd, (HMENU)IDC_LINE_NUM, GetModuleHandle(NULL), NULL);
-			//CreateWindow("STATIC", "快捷功能：",WS_CHILD|WS_VISIBLE,60, wheight-112, 100, 19,hwnd, (HMENU)IDC_QUICKFUNC, GetModuleHandle(NULL), NULL);
-			//CreateWindow("BUTTON", "Compile && Run as C++ File",WS_CHILD|WS_VISIBLE,180, wheight-114, 200, 23,hwnd, (HMENU)IDC_COMPRUN_C, GetModuleHandle(NULL), NULL);
-			//CreateWindow("BUTTON", "Compile && Run as Pascal File",WS_CHILD|WS_VISIBLE,400, wheight-114, 200, 23,hwnd, (HMENU)IDC_COMPRUN_P, GetModuleHandle(NULL), NULL);
-			//CreateWindow("BUTTON", "Save",WS_CHILD|WS_VISIBLE,620, wheight-114, 100, 23,hwnd, (HMENU)IDC_SAVE, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "g++.exe %f -o %e",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-60/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-60/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
 			
 			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//创建字体
 			/*4.7*/hFont_ln = CreateFont(14,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//创建字体
@@ -289,6 +291,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_LINE_NUM, WM_SETFONT,(WPARAM)hFont_ln/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			///*4.7*/SendDlgItemMessage(hwnd, IDC_QUICKFUNC, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
+			
+			/*5.0*/hFont = CreateFont(18,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//创建字体
+			SendDlgItemMessage(hwnd, ID_COMPILEORDER, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
+			/*5.0*/hFont = CreateFont(15,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//创建字体
+			SendDlgItemMessage(hwnd, ID_COMPILERES, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			
 			/*3.10: Statusbar*/
 			g_hStatusBar = CreateWindowEx(0, STATUSCLASSNAME, NULL,
@@ -406,13 +413,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC, RGB(2, 122, 250));//文档注释（/**开头）
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
-			//SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETPROPERTY,(sptr_t)"fold",(sptr_t)"1");
+			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINTYPEN,0,(sptr_t)SC_MARGIN_NUMBER);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN,0,(sptr_t)40);
+			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_CLEARCMDKEY, (WPARAM)('F'+(SCMOD_CTRL<<16)), SCI_NULL);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCODEPAGE, SC_CP_UTF8, SCI_NULL);
+			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)"Consolas");
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,(sptr_t)wsizes[wordsizepos]);
+			
+			SendEditor(SCI_SETTABWIDTH, 4, 0);//tab：4个空格 
+			/*
+			    SendEditor(SCI_SETPROPERTY,(sptr_t)"fold",(sptr_t)"0"); 
+   
+    			SendEditor(SCI_SETMARGINTYPEN, MARGIN_FOLD_INDEX, SC_MARGIN_SYMBOL);//页边类型 
+    			SendEditor(SCI_SETMARGINMASKN, MARGIN_FOLD_INDEX, SC_MASK_FOLDERS); //页边掩码 
+    			SendEditor(SCI_SETMARGINWIDTHN, MARGIN_FOLD_INDEX, 11); //页边宽度 
+    			SendEditor(SCI_SETMARGINSENSITIVEN, MARGIN_FOLD_INDEX, TRUE); //响应鼠标消息 
+   				
+    			// 折叠标签样式 
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS);  
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS);  
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND,  SC_MARK_CIRCLEPLUSCONNECTED); 
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED); 
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE); 
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);  
+    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE); 
+   
+    			// 折叠标签颜色 
+    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERSUB, 0xa0a0a0); 
+    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERMIDTAIL, 0xa0a0a0); 
+    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERTAIL, 0xa0a0a0); 
+   				
+    			SendEditor(SCI_SETFOLDFLAGS, 16|4, 0); //如果折叠就在折叠行的上下各画一条横线 
+			*/
+			
 			return 0;
 			break;
 		case WM_SIZE:
@@ -423,8 +459,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
 			if(wParam != SIZE_MINIMIZED) {
-				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-60,/*HIWORD(lParam)*/wheight-120, TRUE);
+				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-75,/*HIWORD(lParam)*/wheight-240, TRUE);
 				MoveWindow(GetDlgItem(hwnd, IDC_LINE_NUM), 0, 30, /*LOWORD(lParam)*/60,/*HIWORD(lParam)*/wheight-120, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-60/*CW_USEDEFAULT*/, 25, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-60/*CW_USEDEFAULT*/, 95, TRUE);
 		    }
 			SendMessage(g_hToolBar, TB_AUTOSIZE, 0, 0);
 			SendMessage(g_hStatusBar, WM_SIZE, 0, 0);
@@ -447,20 +485,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);
 					MessageBox(hwnd, getallcodetmpstr, "", MB_OK);
 					MessageBox(NULL, i_to_str(GetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT)).c_str(), "", MB_OK);
-					GetCaretPos(&cursorpoint);
-					MessageBox(NULL, i_to_str(cursorpoint.x).c_str(), "", MB_OK);
-					MessageBox(NULL, i_to_str(cursorpoint.y).c_str(), "", MB_OK);
-					GetCaretPos(&cursorpoint);
-					cursorx = (cursorpoint.x-6)/(wsizes[wordsizepos]/2.0)+1;
-					cursory = (cursorpoint.y-2)/wsizes[wordsizepos]+1;
-					MessageBox(NULL, i_to_str(cursorx).c_str(), "", MB_OK);
-					MessageBox(NULL, i_to_str(cursory).c_str(), "", MB_OK);
 					break;
 				}
 				case CM_FILE_OPEN:
+					/*
 					if (MessageBox (hwnd, " If you open a new file, the unsaved contents will be lost!\n Sure to continue?", "Warning!", MB_YESNO | MB_ICONWARNING) != IDYES) {
 						break;
 					}
+					*/
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ Opening... ]";
 					SetWindowText (hwnd, titlestr01.c_str());
@@ -504,10 +536,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					break;
 				}
 				case CM_CFONT: {
-					if (fontname == "Inconsolata") {
-						fontname = "Consolas";
-					} else {
+					if (fontname == "Consolas") {
 						fontname = "Inconsolata";
+					} else {
+						fontname = "Consolas";
 					}
 					///*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//创建字体
 					///*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
@@ -574,7 +606,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SetWindowText (hwnd, "Click 5.0 [ About... ]");
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"About..."); 
 					/*end:settitle*/ 
-					MessageBox (hwnd, "Click IDE: 2020.4\nVersion: 5.0.-Stable\nBy: 华育中学 Eric 倪天衡.\nGUI: Win32 API.\nIntroduction: Click is an light, open-source, convenient C++/Pascal IDE which based on MinGW and FPC.\nOnly for: Windows 7/8/8.1/10. You can contact us to get the XP Version.\nLicense: Apache License, Version 2.0\nTo learn more or get updates, please visit our official website: https://ericnth.cn/clickide/\nIf you meet some problems, please contact us or visit: Help->Get help..." , "About...", 0);
+					MessageBox (hwnd, "Click IDE: 2020.4\nVersion: 5.0.-Stable\nBy: 华育中学 Eric 倪天衡.\nGUI: Win32 API.\nIntroduction: Click is an light, open-source, convenient C++ IDE which based on GNU MinGW.\nOnly for: Windows 7/8/8.1/10. You can contact us to get the XP Version.\nLicense: Apache License, Version 2.0\nTo learn more or get updates, please visit our official website: https://ericnth.cn/clickide/\nIf you meet some problems, please contact us or visit: Help->Get help..." , "About...", 0);
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ ";
 					titlestr01+=szFileName;
@@ -585,39 +617,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					break;
 				case CM_RUN:
 					if (fcompiled) {
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Running ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Running..."); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" /max %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
+						/*settitle*/ 
+						titlestr01="Click 5.0 [ Running ] [ ";
+						titlestr01+=szFileName;
+						titlestr01+=" ]";
+						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Running..."); 
+						SetWindowText (hwnd, titlestr01.c_str());
+						/*end:settitle*/ 
+						strcpy(szFileName2,getcppfn(szFileName).c_str());
+						strcat(szFileName2,".exe");
+						if (_access(szFileName2, X_OK) == -1) {
+							MessageBox(hwnd, "运行失败。请在下方信息窗口查看详情。\nFail to run program! Please look at the details in the \"Information\" Box.", "Click 5.0", MB_OK|MB_ICONHAND);
+							sprintf(cmdbuf3, "Fail to run program: \r\n%s.exe\r\nMaybe it is because that you failed in compilation.\r\nAnd make sure that you added \"-o %%e\" option when inputting compiling order.", getcppfn(szFileName).c_str());
+							Addinfo(cmdbuf3);
+							break;
+						}
+						sprintf(cmdbuf3, "Running program: \r\n%s.exe", getcppfn(szFileName).c_str());
+						Addinfo(cmdbuf3);
+						sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
 						runprocess (cmdbuf2, 0, 1);
 					} else {
 						MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
-					}
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					break;
-				case CM_RUNPAS:
-					if (fcompiled) {
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Running ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Running..."); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-						sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" /max %s.exe",getpasfn(szFileName).c_str(),getpasfn(szFileName).c_str());
-						runprocess (cmdbuf2, 0, 1);
-					} else {
-						MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
+						sprintf(cmdbuf3, "Fail to run program: \r\n%s.exe\r\nPlease compile it first.", getcppfn(szFileName).c_str());
+						Addinfo(cmdbuf3);
 					}
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ ";
@@ -628,6 +650,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILE:
+					char compileordertmptmp[800];
+					GetDlgItemText(hwnd, ID_COMPILEORDER, compileordertmptmp, 800);
+					compileordertmp.clear();
+					compileordertmp += compileordertmptmp;
+					for (int i = 0; i < compileordertmp.size(); i++) {
+						if (i == compileordertmp.size()-1) {
+							continue;
+						}
+						if (compileordertmp[i] == '%') {
+							if (compileordertmp[i+1] == 'f' || compileordertmp[i+1] == 'F') {
+								strcpy(szFileNametmp, "\"");
+								strcat(szFileNametmp, szFileName);
+								strcat(szFileNametmp, "\"");
+								compileordertmp.replace(i, 2, szFileNametmp);
+							}
+							if (compileordertmp[i+1] == 'e' || compileordertmp[i+1] == 'E') {
+								strcpy(szFileNametmp, "\"");
+								strcat(szFileNametmp, getcppfn(szFileName).c_str());
+								strcat(szFileNametmp, "\"");
+								compileordertmp.replace(i, 2, szFileNametmp);
+							}
+							if (compileordertmp[i+1] == '%') {
+								strcpy(szFileNametmp, "%");
+								compileordertmp.replace(i, 2, szFileNametmp);
+							}
+						}
+					}
+					//MessageBox(hwnd, compileordertmp.c_str(), "", MB_OK);
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Compiling..."); 
 					if ((!fsaved && !fopend) || strcmp(szFileName, "") == 0) {
 						if (!DoFileOpenSave(hwnd, TRUE)) {
@@ -637,6 +687,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
 							MessageBox(hwnd, "Save file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
 							fsaved=0;
+							break;
 						}
 					}
 					/*settitle*/ 
@@ -645,7 +696,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					titlestr01+=" ]";
 					SetWindowText (hwnd, titlestr01.c_str());
 					/*end:settitle*/ 
-					sprintf (cmdbuf1, "g++.exe \"%s\" -o \"%s.exe\" 2> %s_compile_tmp.log",szFileName,getcppfn(szFileName).c_str(),szFileName);
+					sprintf (cmdbuf1, "%s 2> %s_compile_tmp.log", compileordertmp.c_str(),szFileName);
 					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" /max %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
 					sprintf (cmdbuf3, "del \"%s.exe\"",getcppfn(szFileName).c_str());
 					sprintf (cmdbuf4, "del \"%s_compile_tmp.log\"",szFileName);
@@ -655,15 +706,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					wndfin.open (cmdbuf5);
 					while (wndfin) {
 						errreportcnt++;
-						errreporti += wndfin.get();
+						inttmpnum=wndfin.get();
+						if (inttmpnum == '\n') {
+							errreporti += "\r\n";
+						} else {
+							errreporti += (char)inttmpnum;
+						}
 					}
 					wndfin.close();
 					if (errreportcnt>1) {
-						MessageBox (hwnd, errreporti.c_str(), "Click 5.0: Compile Error", MB_OK);
+						sprintf(compileresult, "Compilation Result\r\nOrder: %s\r\nCompiler output: %s\r\nResult: Failed.", cmdbuf1, errreporti.c_str());
+						Addinfo(compileresult);
+						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 						break;
 						fcompiled=0; 
 					} else {
 						fcompiled=1;
+						sprintf(compileresult, "Compilation Result\r\nOrder: %s\r\nResult: Succeed.", cmdbuf1, errreporti.c_str());
+						Addinfo(compileresult);
+						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					}
 					runprocess (cmdbuf4, 1, 0);
 					/*settitle*/ 
@@ -676,178 +737,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILERUN:
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Compiling..."); 
-					if ((!fsaved && !fopend) || strcmp(szFileName, "") == 0) {
-						if (!DoFileOpenSave(hwnd, TRUE)) {
-							break;
-						}
-					} else {
-						if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
-							MessageBox(hwnd, "Save file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
-							fsaved=0;
-						}
-					}
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Compiling ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					sprintf (cmdbuf1, "g++ \"%s\" -o \"%s.exe\" 2> %s_compile_tmp.log",szFileName,getcppfn(szFileName).c_str(),szFileName);
-					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" /max %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
-					sprintf (cmdbuf3, "del \"%s.exe\"",getcppfn(szFileName).c_str());
-					sprintf (cmdbuf4, "del \"%s_compile_tmp.log\"",szFileName);
-					sprintf (cmdbuf5, "%s_compile_tmp.log",szFileName);
-					runprocess (cmdbuf3, 1, 0);
-					errreportcnt = 0;
-					runprocess (cmdbuf1, 1, 0);
-					wndfin.open (cmdbuf5);
-					while (wndfin) {
-						errreportcnt++;
-						errreporti += wndfin.get();
-					}
-					wndfin.close();
-					if (errreportcnt>1) {
-						MessageBox (hwnd, errreporti.c_str(), "Click 5.0: Compile Error", MB_OK);
-						fcompiled=0;
-						break;
-					} else {
-						fcompiled=1;
-					}
-					runprocess (cmdbuf4, 1, 0);
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Running ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Running..."); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					runprocess (cmdbuf2, 0, 1);
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SetWindowText (hwnd, titlestr01.c_str());
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "已编译" : "未编译")); 
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					/*end:settitle*/ 
+					SendMessage(hwnd, WM_COMMAND, CM_COMPILE, NULL);
+					SendMessage(hwnd, WM_COMMAND, CM_RUN, NULL);
 					break;
 					
-				case CM_COMPILPAS:
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Compiling..."); 
-					if ((!fsaved && !fopend) || strcmp(szFileName, "") == 0) {
-						if (!DoFileOpenSave(hwnd, TRUE)) {
-							break;
-						}
-					} else {
-						if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
-							MessageBox(hwnd, "Save file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
-							fsaved=0;
-						}
-					}
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Compiling ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					sprintf (cmdbuf1, "fpc.exe %s > %s_compile_tmp.log",szFileName,szFileName);
-					sprintf (cmdbuf2, "start /max %s.exe",getpasfn(szFileName).c_str());
-					sprintf (cmdbuf3, "del \"%s\"",getpasfn(szFileName).c_str());
-					sprintf (cmdbuf4, "del \"%s_compile_tmp.log\"",szFileName);
-					sprintf (cmdbuf5, "%s_compile_tmp.log",szFileName);
-					//runprocess (cmdbuf3);
-					runprocess (cmdbuf1, 1, 0);
-					errreportcnt = 0;
-					wndfin.open (cmdbuf5);
-					while (wndfin) {
-						errreportcnt++;
-						errreporti += wndfin.get();
-					}
-					wndfin.close();
-					if (errreportcnt>1) {
-						MessageBox (NULL, errreporti.c_str(), "Click 5.0: Compile Message", MB_OK | MB_ICONINFORMATION);
-						break;
-						fcompiled=1;
-					} else {
-						fcompiled=1;
-					}
-					runprocess (cmdbuf4, 1, 0);
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "已编译" : "未编译")); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					break;
-				case CM_COMPILERUPAS:
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Compiling..."); 
-					if ((!fsaved && !fopend) || strcmp(szFileName, "") == 0) {
-						if (!DoFileOpenSave(hwnd, TRUE)) {
-							break;
-						}
-					} else {
-						if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
-							MessageBox(hwnd, "Save file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
-							fsaved=0;
-						}
-					}
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Compiling ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					sprintf (cmdbuf1, "fpc.exe %s > %s_compile_tmp.log",szFileName,szFileName);
-					sprintf (cmdbuf2, "start /max %s.exe",getpasfn(szFileName).c_str());
-					sprintf (cmdbuf3, "del \"%s\"",getpasfn(szFileName).c_str());
-					sprintf (cmdbuf4, "del \"%s_compile_tmp.log\"",szFileName);
-					sprintf (cmdbuf5, "%s_compile_tmp.log",szFileName);
-					//runprocess (cmdbuf3);
-					runprocess (cmdbuf1, 1, 0);
-					wndfin.open (cmdbuf5);
-					errreportcnt = 0;
-					while (wndfin) {
-						errreportcnt++;
-						errreporti += wndfin.get();
-					}
-					wndfin.close();
-					if (errreportcnt>1) {
-						/*
-						if (errreporti.find("Fatal:")&&errreporti.find("Error:")) {
-							fcompiled=0;
-							MessageBox (NULL, errreporti.c_str(), "Click 5.0: Compile Error", MB_OK | MB_ICONERROR);
-							break;
-						} else {
-						*/
-							fcompiled=1;
-							MessageBox (NULL, errreporti.c_str(), "Click 5.0: Compile Message", MB_OK | MB_ICONINFORMATION);
-						/*
-						}
-						*/
-					} else {
-						fcompiled=1;
-					}
-					runprocess (cmdbuf4, 1, 0);
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Running ] [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Running..."); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					runprocess (cmdbuf2, 0, 1);
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ ";
-					titlestr01+=szFileName;
-					titlestr01+=" ]";
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "已编译" : "未编译")); 
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
-					break;
 				case CM_STARTCMD:
 					runprocess ((char*)"start /max \"Click 5.0 [Command]\"", 0, 1);
 					break;
@@ -867,7 +760,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 							fsaved=0;
 						}
 					}
-					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s]\" /max %s", szFileName, szFileName);
+					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s]\" %s", szFileName, szFileName);
 					runprocess (cmdbuf2, 0, 1);
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ ";
@@ -1179,7 +1072,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					break;
 				}
 				case CM_GITHUB: {
-					ShellExecute(NULL,TEXT("open"), TEXT("https://github.com/EricNTH080103/ClickIDE_5.x"), TEXT(""),NULL,SW_SHOWNORMAL);
+					ShellExecute(NULL,TEXT("open"), TEXT("https://github.com/EricNTH080103/ClickIDE-5.x"), TEXT(""),NULL,SW_SHOWNORMAL);
 					break;
 				}
 				case CM_WEBSITE: {
@@ -1192,7 +1085,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			hCompileMenu = GetSubMenu(hMenu, 1);
 			EnableMenuItem(hFileMenu, CM_FILE_SAVE, MF_BYCOMMAND | (!(!fsaved && !fopend) || strcmp(szFileName, "Untitled") ? MF_ENABLED : MF_GRAYED));
 			EnableMenuItem(hCompileMenu, CM_RUN, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
-			EnableMenuItem(hCompileMenu, CM_RUNPAS, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
 			EnableMenuItem(hCompileMenu, CM_DEBUG, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
 			char tishitext[1024];
 			GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);

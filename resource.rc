@@ -14,14 +14,10 @@ MAINMENU MENU
  
  POPUP "&Compile"
  {
- 	MENUITEM "&Compile C++ File...", CM_COMPILE
- 	MENUITEM "Compile &and Run C++ File...", CM_COMPILERUN
+ 	MENUITEM "&Compile This File...", CM_COMPILE
+ 	MENUITEM "Compile &and Run This File...", CM_COMPILERUN
  	MENUITEM SEPARATOR 
- 	MENUITEM "&Compile Pascal File...", CM_COMPILPAS
- 	MENUITEM "Compile &and Run Pascal File...", CM_COMPILERUPAS
-	MENUITEM SEPARATOR
- 	MENUITEM "&Run This C++ File", CM_RUN, GRAYED
- 	MENUITEM "&Run This Pascal File", CM_RUNPAS, GRAYED
+ 	MENUITEM "&Run This File", CM_RUN, GRAYED
  	MENUITEM "Run This &Bat File", CM_RUNBAT
  	MENUITEM SEPARATOR
  	MENUITEM "&Debug This C++ File...", CM_DEBUG, GRAYED
