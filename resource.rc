@@ -1,0 +1,67 @@
+#include "main.h"
+
+MAINMENU MENU 
+{
+ POPUP "&File"
+ {
+  MENUITEM "&New...", CM_FILE_NEW, GRAYED
+  MENUITEM "&Open...", CM_FILE_OPEN
+  MENUITEM "&Save", CM_FILE_SAVE, GRAYED
+  MENUITEM "Save &As...", CM_FILE_SAVEAS
+  MENUITEM SEPARATOR
+  MENUITEM "E&xit\tAlt+F4", CM_FILE_EXIT
+ }
+ 
+ POPUP "&Compile"
+ {
+ 	MENUITEM "&Compile C++ File...", CM_COMPILE
+ 	MENUITEM "Compile &and Run C++ File...", CM_COMPILERUN
+ 	MENUITEM SEPARATOR 
+ 	MENUITEM "&Compile Pascal File...", CM_COMPILPAS
+ 	MENUITEM "Compile &and Run Pascal File...", CM_COMPILERUPAS
+	MENUITEM SEPARATOR
+ 	MENUITEM "&Run This C++ File", CM_RUN, GRAYED
+ 	MENUITEM "&Run This Pascal File", CM_RUNPAS, GRAYED
+ 	MENUITEM "Run This &Bat File", CM_RUNBAT
+ 	MENUITEM SEPARATOR
+ 	MENUITEM "&Debug This C++ File...", CM_DEBUG, GRAYED
+ 	MENUITEM SEPARATOR
+ 	MENUITEM "&Start Command...", CM_STARTCMD
+ }
+ 
+ POPUP "&Edit"
+ {	
+    MENUITEM "&Undo\tCtrl+Z", CM_EDIT_UNDO
+	MENUITEM SEPARATOR
+	MENUITEM "Cu&t\tCtrl+X", CM_EDIT_CUT
+	MENUITEM "&Copy\tCtrl+C", CM_EDIT_COPY
+	MENUITEM "&Paste\tCtrl+V", CM_EDIT_PASTE
+	MENUITEM SEPARATOR
+	MENUITEM "&Find...", CM_EDIT_FIND
+	MENUITEM SEPARATOR
+ 	MENUITEM "Astyle", CM_ASTYLE
+ 	MENUITEM "Export Html With Highlights", CM_GHTML
+ 	MENUITEM SEPARATOR
+	MENUITEM "Larger Words", CM_WLARGE
+	MENUITEM "Smaller Words", CM_WSMALL
+	MENUITEM "Change Another Font", CM_CFONT
+	MENUITEM SEPARATOR
+	MENUITEM "&Import Settings", CM_IMPORTSET
+	MENUITEM SEPARATOR
+	MENUITEM "Developer Tools", CM_DT
+ }
+ 
+ POPUP "&Help"
+ {
+  MENUITEM "View Variables...", CM_VVARI
+  MENUITEM SEPARATOR
+  MENUITEM "&Visit Our Site", CM_WEBSITE
+  MENUITEM "&See This Project on Github", CM_GITHUB
+  MENUITEM SEPARATOR
+  MENUITEM "&Flush StatusBar", CM_FLSTB
+  MENUITEM SEPARATOR
+  MENUITEM "&Get Help...", CM_GHELP
+  MENUITEM "&About...", CM_ABOUT
+ }
+}
+
