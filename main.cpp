@@ -394,11 +394,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			/*
 			*--4.7
 			*/
-			if (hasstartopenfile) {
-				LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
-				strcpy(szFileName, commandline);
-				SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
-			}
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, NULL); //C++语法解析
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t)g_szKeywords);//设置关键字
 			// 下面设置各种语法元素前景色
@@ -424,31 +419,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,(sptr_t)wsizes[wordsizepos]);
 			
 			SendEditor(SCI_SETTABWIDTH, 4, 0);//tab：4个空格 
-			/*
-			    SendEditor(SCI_SETPROPERTY,(sptr_t)"fold",(sptr_t)"0"); 
-   
-    			SendEditor(SCI_SETMARGINTYPEN, MARGIN_FOLD_INDEX, SC_MARGIN_SYMBOL);//页边类型 
-    			SendEditor(SCI_SETMARGINMASKN, MARGIN_FOLD_INDEX, SC_MASK_FOLDERS); //页边掩码 
-    			SendEditor(SCI_SETMARGINWIDTHN, MARGIN_FOLD_INDEX, 11); //页边宽度 
-    			SendEditor(SCI_SETMARGINSENSITIVEN, MARGIN_FOLD_INDEX, TRUE); //响应鼠标消息 
-   				
-    			// 折叠标签样式 
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS);  
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS);  
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND,  SC_MARK_CIRCLEPLUSCONNECTED); 
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED); 
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE); 
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);  
-    			SendEditor(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE); 
-   
-    			// 折叠标签颜色 
-    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERSUB, 0xa0a0a0); 
-    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERMIDTAIL, 0xa0a0a0); 
-    			SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDERTAIL, 0xa0a0a0); 
-   				
-    			SendEditor(SCI_SETFOLDFLAGS, 16|4, 0); //如果折叠就在折叠行的上下各画一条横线 
-			*/
 			
+			if (hasstartopenfile) {
+				LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
+				strcpy(szFileName, commandline);
+				SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
+			}
 			return 0;
 			break;
 		case WM_SIZE:
