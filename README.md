@@ -6,7 +6,9 @@ Thank you for your visit to ClickIDE Project. If you like it, please give us a s
 
 Click is an light, open-source, convenient C++/Pascal IDE which based on MinGW and FPC.
 
-ClickIDE是一款轻量级的C++/Pascal IDE，可以满足正常C++编程学习的需求。软件优势：占用空间极小（软件本身只有约2MB，附上编译器也只有约500MB）；完全开源（遵循Apache协议）；免安装直接使用；不需要任何依赖，直接运行main文件夹下的exe文件即可，可以直接拷贝此文件到任何一台电脑上直接使用；资源占用很低，任何电脑都可以轻松运行；可以导出带有语法高亮的HTML；可以调整字号。不足：需要配置环境变量（软件里已经有详细的配置方法），无法显示行号。
+ClickIDE是一款轻量级的C++/Pascal IDE，可以满足正常C++编程学习的需求。软件优点：占用空间极小（软件本身只有约2MB，附上编译器也只有约500MB）；完全开源（遵循Apache协议）；免安装直接使用；4.x不需要任何依赖，直接运行main文件夹下的exe文件即可，可以直接拷贝此文件到任何一台电脑上直接使用；5.x只需要main文件夹下的exe文件和适合自己电脑的dll文件。资源占用很低，任何电脑都可以轻松运行；5.x可以实现实时语法高亮，5.x和4.x都可以可以导出带有语法高亮的HTML；可以调整字号。另外：应用需要配置环境变量（软件里已经有详细的配置方法）
+
+想要下载4.x版本？请访问 [https://github.com/EricNTH080103/ClickIDE/](https://github.com/EricNTH080103/ClickIDE/) 来获取！
 
 ## Snapshots
 
