@@ -28,3 +28,7 @@
 # Executables
 *.out
 *.app
+
+#others
+cmd.bat
+ffmpeg.exe
