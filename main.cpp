@@ -27,6 +27,11 @@ string lasttimestr;
 POINT cursorpoint;
 const char* g_szKeywords="asm auto bool break case catch char class const const_cast continue default delete do double dynamic_cast else enum explicit extern false finally float for friend goto if inline int long mutable namespace new operator private protected public register reinterpret_cast register return short signed sizeof static static_cast struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while";
 
+
+LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
+	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
+}
+
 string output_time() {
 	time_t rawtime;
    	time(&rawtime);   
@@ -37,7 +42,7 @@ string output_time() {
 	return tttmps;
 }
 
-void Addinfo(char info[]) {
+void Addinfo(const char info[]) {
 	char nativetext[100000];
 	GetDlgItemText(hwnd, ID_COMPILERES, nativetext, 100000);
 	string aftertext;
@@ -143,6 +148,7 @@ BOOL SaveFile(HWND hEdit, LPSTR pszFileName) {
 					if(WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL)) {
 						bSuccess = TRUE;
 						fsaved=1;
+						SendEditor(SCI_SETSAVEPOINT);
 					}
 				}
 				GlobalFree(pszText);
@@ -161,7 +167,7 @@ BOOL DoFileOpenSave(HWND hwnd, BOOL bSave) {
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = hwnd;
-	ofn.lpstrFilter = (bSave ? "C++ Files (*.cpp; *.c++)\0*.cpp;*.c++\0C++ Header Files (*.hpp)\0*.hpp\0Pascal Files (*.pp)\0*.pp\0WindowsÃüÁî½Å±¾ (*.bat; *.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0" : "C++ Files (*.cpp; *.c++; *.cxx)\0*.cpp;*.c++;*.cxx\0C++ Header Files (*.hpp)\0*.hpp\0Pascal Files (*.pp)\0*.pp\0WindowsÃüÁî½Å±¾ (*.bat; *.cmd)\0*.bat;*.com;*.cmd\0ClickIDE Temporary Compilation Logs\0*_compile_tmp.log\0All Files (*.*)\0*.*\0\0");
+	ofn.lpstrFilter = (bSave ? "C++ Files (*.cpp; *.c++)\0*.cpp;*.c++\0C++ Header Files (*.hpp)\0*.hpp\0Pascal Files (*.pp)\0*.pp\0Windows    Å±  (*.bat; *.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0" : "C++ Files (*.cpp; *.c++; *.cxx)\0*.cpp;*.c++;*.cxx\0C++ Header Files (*.hpp)\0*.hpp\0Pascal Files (*.pp)\0*.pp\0Windows    Å±  (*.bat; *.cmd)\0*.bat;*.com;*.cmd\0ClickIDE Temporary Compilation Logs\0*_compile_tmp.log\0All Files (*.*)\0*.*\0\0");
  	ofn.lpstrFile = szFileName;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrDefExt = "";
@@ -199,7 +205,7 @@ BOOL DoFileOpen(HWND hwnd, char rt[]) {
 	rt[0] = 0;
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = hwnd;
-	ofn.lpstrFilter = "ÅäÖÃÉèÖÃ(*.ini)\0*.ini\0\0";
+	ofn.lpstrFilter = "        (*.ini)\0*.ini\0\0";
 	ofn.lpstrFile = rt;
 	ofn.nMaxFile = MAX_PATH*4;
 	ofn.lpstrDefExt = "";	
@@ -228,12 +234,6 @@ string i_to_str(int int_num) {
 	return rt;
 }
 
-
-LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
-	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
-}
-
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	HMENU hMenu, hFileMenu, hCompileMenu;
 	ifstream wndfin;
@@ -246,7 +246,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	char cmdbuf3[MAX_PATH+40];
 	char cmdbuf4[MAX_PATH+40];
 	char cmdbuf5[MAX_PATH+40];
-	int iStatusWidths[] = {100, 230, 300, 320, -1};
+	int iStatusWidths[] = {100, 230, 330, 335, -1};
 	RECT rectStatus;
 	bool isycl = 0;
 	bool iszfc = 0;
@@ -255,7 +255,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	bool issgzs = 0; /*//*/ //a
 	bool ismtzs = 0;
 	bool dontout = 0;
-	RECT rctA; //¶¨ÒåÒ»¸öRECT½á¹¹Ìå£¬´æ´¢´°¿ÚµÄ³¤¿í¸ß
+	RECT rctA; //    Ò»  RECT á¹¹ å£¬ æ´¢   ÚµÄ³    
 	int wwidth = 1000, wheight = 600;
 	ofstream fout;
 	HFONT hFont;
@@ -269,6 +269,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	char szFileNametmp[MAX_PATH*10];
 	char compileresult[50000];
 	char szFileName2[MAX_PATH*10];
+	SCNotification* notify = (SCNotification*)lParam; 
+	HDC hdc,mdc;
+	HBITMAP bg;
+	int cursorpos;
+	DWORD dwTextLength;
+	int currentlinenum = 0;
+	int tabcount = 0;
 	/*4.8-- 
 	if (tosetcur) {
 		SetCaretPos((cursorpoint.x-6)/(wsizes[wordsizepos]/2.0), (cursorpoint.y-2)/wsizes[wordsizepos]);
@@ -277,24 +284,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	--4.8*/ 
 	switch(Message) {
 		case WM_CREATE:
-			GetWindowRect(hwnd,&rctA);//Í¨¹ý´°¿Ú¾ä±ú»ñµÃ´°¿ÚµÄ´óÐ¡´æ´¢ÔÚrctA½á¹¹ÖÐ
+			GetWindowRect(hwnd,&rctA);//Í¨     Ú¾    Ã´  ÚµÄ´ Ð¡ æ´¢  rctA á¹¹  
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
-			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-60/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
+			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-275/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
 			CreateWindow("STATIC", "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0",WS_CHILD|WS_VISIBLE|WS_BORDER,0, 30, 60/*CW_USEDEFAULT*/, wheight-120,hwnd, (HMENU)IDC_LINE_NUM, GetModuleHandle(NULL), NULL);
-			CreateWindow("EDIT", "g++.exe %f -o %e",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-60/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
-			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-60/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "g++.exe %f -o %e",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-275/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-275/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
 			
-			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//´´½¨×ÖÌå
-			/*4.7*/hFont_ln = CreateFont(14,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//´´½¨×ÖÌå
+			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
+			/*4.7*/hFont_ln = CreateFont(14,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_LINE_NUM, WM_SETFONT,(WPARAM)hFont_ln/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			///*4.7*/SendDlgItemMessage(hwnd, IDC_QUICKFUNC, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			
-			/*5.0*/hFont = CreateFont(18,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//´´½¨×ÖÌå
+			/*5.0*/hFont = CreateFont(18,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			SendDlgItemMessage(hwnd, ID_COMPILEORDER, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
-			/*5.0*/hFont = CreateFont(15,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//´´½¨×ÖÌå
+			/*5.0*/hFont = CreateFont(15,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			SendDlgItemMessage(hwnd, ID_COMPILERES, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			
 			/*3.10: Statusbar*/
@@ -305,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(g_hStatusBar, SB_SETPARTS, 5, (LPARAM)iStatusWidths);
 			SendMessage(g_hStatusBar, SB_SETTEXT, 0, (LPARAM)"Click 5.0 IDE"); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-			SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+			SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 3, (LPARAM)""); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
 			/*--3.10*/
@@ -394,18 +401,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			/*
 			*--4.7
 			*/
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, NULL); //C++Óï·¨½âÎö
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t)g_szKeywords);//ÉèÖÃ¹Ø¼ü×Ö
-			// ÏÂÃæÉèÖÃ¸÷ÖÖÓï·¨ÔªËØÇ°¾°É«
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, NULL); //C++      
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t)g_szKeywords);//   Ã¹Ø¼   
+			//        Ã¸     Ôª  Ç°  É«
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_WORD, 0x00FF0000);
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));//×Ö·û´®
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));//×Ö·û
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_NUMBER, RGB(144, 49, 150));//×Ö·û
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_PREPROCESSOR, RGB(84, 181, 153));//Ô¤±àÒë¿ª¹Ø
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(255, 0, 0));//ÔËËã·û
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENT, RGB(2, 122, 216));//¿é×¢ÊÍ
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTLINE, RGB(2, 122, 216));//ÐÐ×¢ÊÍ
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC, RGB(2, 122, 250));//ÎÄµµ×¢ÊÍ£¨/**¿ªÍ·£©
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));// Ö·   
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));// Ö· 
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_NUMBER, RGB(144, 49, 150));// Ö· 
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_PREPROCESSOR, RGB(84, 181, 153));//Ô¤   ë¿ª  
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(255, 0, 0));//     
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENT, RGB(2, 122, 216));//  ×¢  
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTLINE, RGB(2, 122, 216));//  ×¢  
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC, RGB(2, 122, 250));// Äµ ×¢ Í£ /**  Í·  
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
 			
@@ -418,27 +425,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)"Consolas");
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,(sptr_t)wsizes[wordsizepos]);
 			
-			SendEditor(SCI_SETTABWIDTH, 4, 0);//tab£º4¸ö¿Õ¸ñ 
+			SendEditor(SCI_SETTABWIDTH, 4, 0);//tab  4   Õ¸  
 			
 			if (hasstartopenfile) {
 				LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
 				strcpy(szFileName, commandline);
 				SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
 			}
+			
 			return 0;
 			break;
 		case WM_SIZE:
 			RECT rectClient, rectStatus, rectTool;
 			UINT uToolHeight, uStatusHeight, uClientAlreaHeight;
 			
-			GetWindowRect(hwnd,&rctA);//Í¨¹ý´°¿Ú¾ä±ú»ñµÃ´°¿ÚµÄ´óÐ¡´æ´¢ÔÚrctA½á¹¹ÖÐ
+			GetWindowRect(hwnd,&rctA);
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
 			if(wParam != SIZE_MINIMIZED) {
 				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-75,/*HIWORD(lParam)*/wheight-240, TRUE);
 				MoveWindow(GetDlgItem(hwnd, IDC_LINE_NUM), 0, 30, /*LOWORD(lParam)*/60,/*HIWORD(lParam)*/wheight-120, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-60/*CW_USEDEFAULT*/, 25, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-60/*CW_USEDEFAULT*/, 95, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-75/*CW_USEDEFAULT*/, 25, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-75/*CW_USEDEFAULT*/, 95, TRUE);
 		    }
 			SendMessage(g_hToolBar, TB_AUTOSIZE, 0, 0);
 			SendMessage(g_hStatusBar, WM_SIZE, 0, 0);
@@ -461,6 +469,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);
 					MessageBox(hwnd, getallcodetmpstr, "", MB_OK);
 					MessageBox(NULL, i_to_str(GetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT)).c_str(), "", MB_OK);
+					//MessageBox(NULL, i_to_str(pointtmp.x).c_str(), "", MB_OK);
+					cursorpos = SendEditor(SCI_GETCURRENTPOS);
+					dwTextLength = SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_GETLENGTH, SCI_NULL, SCI_NULL);
+					char pszText[dwTextLength];
+					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_GETTEXT, dwTextLength+1, (LPARAM)pszText);
+					MessageBox(hwnd, i_to_str(pszText[cursorpos]).c_str(), "", MB_OK);
+					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)")");
 					break;
 				}
 				case CM_FILE_OPEN:
@@ -477,7 +492,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					if (!DoFileOpenSave(hwnd, FALSE)) {
 						titlestr01="Click 5.0";
 						SetWindowText (hwnd, titlestr01.c_str());
-						SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+						SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 						break;
 					}
@@ -487,26 +502,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					titlestr01+=szFileName;
 					titlestr01+=" ]";
 					SetWindowText (hwnd, titlestr01.c_str());
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					/*end:settitle*/ 
 					break;
 				case CM_WLARGE: {
 					if (wordsizepos >= 15) {
-						MessageBox(hwnd, "ÒÑ¾­ÊÇ×î´ó×ÖÌå£¡", "", MB_OK);
+						MessageBox(hwnd, "Words cannot be bigger anymore!", "", MB_OK);
 						break;
 					}
-					///*4.7*/hFont = CreateFont(wsizes[++wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//´´½¨×ÖÌå
+					///*4.7*/hFont = CreateFont(wsizes[++wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
 					///*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t)(wsizes[++wordsizepos]));
 					break;
 				}
 				case CM_WSMALL: {
 					if (wordsizepos <= 0) {
-						MessageBox(hwnd, "ÒÑ¾­ÊÇ×îÐ¡×ÖÌå£¡", "", MB_OK);
+						MessageBox(hwnd, "Words cannot be smaller anymore!", "", MB_OK);
 						break;
 					}
-					///*4.7*/hFont = CreateFont(wsizes[--wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//´´½¨×ÖÌå
+					///*4.7*/hFont = CreateFont(wsizes[--wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
 					///*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t)(wsizes[--wordsizepos]));
 					break;
@@ -517,7 +532,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					} else {
 						fontname = "Consolas";
 					}
-					///*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//´´½¨×ÖÌå
+					///*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
 					///*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)fontname.c_str());
 					break;
@@ -530,7 +545,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					wordsizepos  = GetPrivateProfileInt(TEXT("FONT"), TEXT("SIZE"), 5, filenametoimport);
 					char fontnameini[100];
 					GetPrivateProfileString(TEXT("FONT"), TEXT("NAME"), TEXT("Inconsolata"), fontnameini, 100, filenametoimport);
-					/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontnameini);//´´½¨×ÖÌå
+					/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontnameini);//        
 					/*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 					break;
 				}
@@ -582,7 +597,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SetWindowText (hwnd, "Click 5.0 [ About... ]");
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"About..."); 
 					/*end:settitle*/ 
-					MessageBox (hwnd, "Click IDE: 2020.4\nVersion: 5.0.-Stable\nBy: »ªÓýÖÐÑ§ Eric ÄßÌìºâ.\nGUI: Win32 API.\nIntroduction: Click is an light, open-source, convenient C++ IDE which based on GNU MinGW.\nOnly for: Windows 7/8/8.1/10. You can contact us to get the XP Version.\nLicense: Apache License, Version 2.0\nTo learn more or get updates, please visit our official website: https://ericnth.cn/clickide/\nIf you meet some problems, please contact us or visit: Help->Get help..." , "About...", 0);
+					MessageBox (hwnd, "Click IDE: 2020.4\nVersion: 5.0-Stable\nBy:23564 EricNTH.\nGUI: Win32 API.\nIntroduction: Click is an light, open-source, convenient C++ IDE which based on GNU MinGW.\nOnly for: Windows 7/8/8.1/10. You can contact us to get the XP Version.\nLicense: Apache License, Version 2.0\nTo learn more or get updates, please visit our official website: https://ericnth.cn/clickide/\nIf you meet some problems, please contact us or visit: Help->Get help..." , "About...", 0);
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ ";
 					titlestr01+=szFileName;
@@ -603,7 +618,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						strcpy(szFileName2,getcppfn(szFileName).c_str());
 						strcat(szFileName2,".exe");
 						if (_access(szFileName2, X_OK) == -1) {
-							MessageBox(hwnd, "ÔËÐÐÊ§°Ü¡£ÇëÔÚÏÂ·½ÐÅÏ¢´°¿Ú²é¿´ÏêÇé¡£\nFail to run program! Please look at the details in the \"Information\" Box.", "Click 5.0", MB_OK|MB_ICONHAND);
+							MessageBox(hwnd, "Fail to run program! Please look at the details in the \"Information\" Box.", "Click 5.0", MB_OK|MB_ICONHAND);
 							sprintf(cmdbuf3, "Fail to run program: \r\n%s.exe\r\nMaybe it is because that you failed in compilation.\r\nAnd make sure that you added \"-o %%e\" option when inputting compiling order.", getcppfn(szFileName).c_str());
 							Addinfo(cmdbuf3);
 							break;
@@ -709,7 +724,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					titlestr01+=" ]";
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					SetWindowText (hwnd, titlestr01.c_str());
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILERUN:
@@ -778,10 +793,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					break;
 				case CM_GHELP:
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Helps..."); 
-					GHELPSTARTPLACE:
-					
-					switch (MessageBox (0, "ÔÚÄúÊ¹ÓÃ¸ÃÈí¼þ½øÐÐ±àÒëÔËÐÐÇ°£¬ÇëÈ·±£ÄúÒÑ¾­½«ÄúµÄg++±àÒëÆ÷binÄ¿Â¼ºÍfpc±àÒëÆ÷µÄbin\\i386-win32\\Ä¿Â¼Ìí¼Óµ½»·¾³±äÁ¿PATH¡££¨»·¾³±äÁ¿ÉèÖÃ·½·¨£ºÓÒ»÷¡°´ËµçÄÔ¡±->ÊôÐÔ£¬µã»÷×ó²à¡°¸ß¼¶ÏµÍ³ÉèÖÃ¡±£¬ÔÚ¡°¸ß¼¶¡±±êÇ©ÏÂµ¥»÷¡°»·¾³±äÁ¿(N)...¡±£¬Ë«»÷¡°ÏµÍ³±äÁ¿¡±ÖÐµÄPATHÏî½øÐÐ±à¼­£¬ÔÚºóÃæÌí¼Ó¡°XXX\\FPC\\2.2.2\\bin\\i386-win32\\¡±ºÍ¡°XXX\\MinGW\\bin\\¡±£¨½«XXXÌæ»»ÎªÄãµÄ°²×°Î»ÖÃ£¬²»Òª¼ÓÒýºÅ£¡£©£¬È»ºóÈ«²¿µã»÷¡°È·¶¨¡±¼´¿É¡£", "Help 01", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
+					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Helps...");
+					ShellExecute(NULL,TEXT("open"), TEXT("https://github.com/EricNTH080103/ClickIDE-5.x/blob/master/README.md"), TEXT(""),NULL,SW_SHOWNORMAL);
+					MessageBox(hwnd, "Please scroll to the bottom of this page to get online helps and hints!\n(If the browser hasn't brought you there, please visit: \nhttps://github.com/EricNTH080103/ClickIDE-5.x/blob/master/README.md)", "Helps", MB_OK | MB_ICONINFORMATION | MB_TOPMOST);
+					/*
+					switch (MessageBox (0, "           Ñ£    â£¬      ß½  Ã¯Â…    Ò»  Òª  Ê±  Ïµ        eric_ni2008@163.com      Ñ¯  Í¶ ß£  Ô±    Ç½   ClickIDE   Ã¸      Æ£ ", "Help 10", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
 						case IDCANCEL: GHELPEXITFLAG = 1;break;
 						case IDCONTINUE:break;
 						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
@@ -789,79 +805,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					}
 					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
 					
-					switch (MessageBox (0, "ÔÚÄú´ò¿ªÒ»¸öÎÄ¼þºó£¬¿ÉÒÔ¶ÔËü½øÐÐÈÎºÎ²Ù×÷¡£ÎÒÃÇ²¢Ã»ÓÐ½ûÖ¹ÀàËÆ´ò¿ªÒ»¸öC++ÎÄ¼þºóÓÃ\"Compile Pascal File...\"À´½øÐÐ±àÒëµÈµÄ²Ù×÷£¨¾¡¹ÜÕâ²»¶Ô£©£¬Òò´ËÄúÔÚÊ¹ÓÃ±àÒë/ÔËÐÐÕâÐ©Ñ¡ÏîÊ±£¬ÇëÎñ±ØÈ·ÈÏÊÇ·ñÑ¡ÔñÁËÕýÈ·µÄÓïÑÔ£¡", "Help 02", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÓÉÓÚ×÷ÕßÄÜÁ¦ÓÐÏÞÒÔ¼°±¾Èí¼þÏòC++µÄÆ«ÏòÐÔ£¬²¿·ÖPascal³ÌÐò¿ÉÄÜÎÞ·¨ÕýÈ·±àÒë/ÔËÐÐ£¬ÇëÄúÁÂ½â¡£ÄúÒ²¿ÉÑ¡ÔñÊ¹ÓÃÆäËûPascal±àÒëÆ÷£¨Ö»Òª°ÑËüµÄÄ¿Â¼Ìí¼Óµ½»·¾³±äÁ¿PATH£¬²¢½«Èí¼þ°²×°Ê±×Ô´øµÄFPCÄ¿Â¼´Ó»·¾³±äÁ¿PATHÖÐÒÆ³ý¼´¿É¡£", "Help 03", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÓÉÓÚ±¾Èí¼þ¿ª·¢Ê±¼ä½Ï¶Ì£¬Òò´ËÔÚÊ¹ÓÃ¹ý³ÌÖÐÓÉÒÔÏÂÏÞÖÆ£º\n  1.½öÓÃÓÚWindows²Ù×÷ÏµÍ³µÄ²¿·ÖÖ§³ÖWin32APIµÄ°æ±¾¡£\n  2.C++ÎÄ¼þ½öÖ§³Ö.cpp, .c++, .cxxºó×ºÃû£¬PascalÎÄ¼þ½öÖ§³Ö.ppºó×ºÃû£¬C++Í·ÎÄ¼þ½öÖ§³Ö.hppºó×ºÃû£¬Åú´¦ÀíÎÄ¼þ½öÖ§³Ö.bat, .com, .cmdºó×ºÃû£¬ÇëÁÂ½â¡£ÈçÄúÊ¹ÓÃÆäËûµÄºó×ºÃû£¨×Ö·ûÊýÁ¿²»·û£©£¬¿ÉÄÜµ¼ÖÂ±àÒëÔËÐÐÊ§°Ü¡£", "Help 04", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÔÚÄúÏëÒªÖ±½ÓÔËÐÐ/µ÷ÊÔÒ»¸ö³ÌÐòÊ±£¬±ØÐëÏÈ±£´æ¡£²¢ÇÒ£¬Èç¹ûÄúÏëÒªÔËÐÐ/µ÷ÊÔµ±Ç°ÄúÐ´µÄ³ÌÐò£¬ÇëÏÈ±àÒë£¬·ñÔòÔËÐÐ/µ÷ÊÔµÄÊÇÄúÉÏÒ»´Î±àÒëºóÉú³ÉµÄ³ÌÐò¡£", "Help 05", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÈôÄúµÄ×´Ì¬Ìõ±»ÕÚµ²£¬ÇÒÄúÏëÒª²é¿´£¬¿ÉÒÔÑ¡ÔñHelp > Flush StatusBar½øÐÐË¢ÐÂ¡£", "Help 06", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "±¾ÎÄ¼þ¼ÐÄÚClick5.0.exeÊÇ¿ÉÒÔµ¥¶ÀÊ¹ÓÃµÄ£¬¼´£ºÄú¿ÉÒÔ°ÑÕâ¸öexeÎÄ¼þ¸´ÖÆµ½ÈÎÒâÎ»ÖÃ£¨ÉõÖÁÆäËûWindowsµçÄÔ£©¾ù¿ÉÊ¹ÓÃ¡£µ«ÄúÐèÒª×Ô¼ºÉèÖÃMinGWºÍFPC¿â£¬ÔÚ±¾·¢²¼°æÖÐÒÑ¾­×Ô´ø£¨¼´MinGWºÍFPCÎÄ¼þ¼Ð£©£¬µ«ÄúÈÔÈ»¿ÉÒÔÊ¹ÓÃ×Ô¼ºµÄ¿â¡£Ö»Òª½«ËüÌí¼Óµ½»·¾³±äÁ¿¼´¿É¡£", "Help 07", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "Æä´Î£¬Èô¿´µ½ÀàËÆ½áÎ²Îª_compile_tmp.logµÄÎÄ¼þ£¬ÊÇÎÒÃÇÔÚ±àÒë¹ý³ÌÖÐ£¨¿ÉÄÜ»á£©Éú³ÉµÄÁÙÊ±ÈÕÖ¾ÎÄ¼þ£¬ÄúÍêÈ«¿ÉÒÔÖ±½ÓÉ¾³ý£¬¶ÔClickIDEºÍÆäËûÈí¼þµÄÔËÐÐÃ»ÓÐÈÎºÎÓ°Ïì¡£", "Help 08", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÔÚÄú±àÒëÊ±£¬ÈôÊÇC++³ÌÐò£¬½öµ±·¢Éú´íÎó/¾¯¸æÊ±²Å»á·¢³öÌáÊ¾£¬·ñÔòÖ±½Ó±àÒëÍê³É£»ÈôÊÇPascal³ÌÐò£¬ÈÎºÎÇé¿öÏÂ¶¼»á·¢³ö±àÒëÌáÊ¾£¬ËùÒÔÇëÈÏÕæÁôÒâÌáÊ¾ÖÐÊÇ·ñ´æÔÚÀýÈç\"Fatal\"»ò\"Error\"Ö®ÀàµÄ×ÖÑÛ£¬ÈçÓÐ£¬Ôò±íÃ÷±àÒë³ö´í£¬·´Ö®£¬Ôò±íÃ÷±àÒëÍ¨¹ý¡£", "Help 09", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					switch (MessageBox (0, "ÈôÓÐÆäËûÀ§ÄÑ£¬ÎÊÌâ£¬Òâ¼û»òÕß½¨Òé£¬ÇëÄúÒ»¶¨Òª¼°Ê±ÁªÏµ×÷ÕßÓÊÏäeric_ni2008@163.com½øÐÐ×ÉÑ¯»òÍ¶Ëß£¬ÒÔ±ãÎÒÃÇ½ñºó°ÑClickIDE×öµÃ¸ü¼ÓÍêÉÆ£¡", "Help 10", MB_CANCELTRYCONTINUE | MB_ICONINFORMATION | MB_DEFBUTTON3)) {
-						case IDCANCEL: GHELPEXITFLAG = 1;break;
-						case IDCONTINUE:break;
-						case IDTRYAGAIN: goto GHELPSTARTPLACE;break;
-						default: GHELPEXITFLAG = 1;break;
-					}
-					if (GHELPEXITFLAG) {SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); break;}
-					
-					MessageBox (0, "Ã»ÓÐ¸ü¶àÌáÊ¾ÁË......", "Message", MB_OK | MB_ICONINFORMATION);
+					MessageBox (0, "Ã» Ã¨     Ê¾  ......", "Message", MB_OK | MB_ICONINFORMATION);
+					*/
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					
 					break;
@@ -893,7 +838,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				case CM_FLSTB:
 					SendMessage(g_hStatusBar, SB_SETTEXT, 0, (LPARAM)"Click 5.0 IDE"); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 3, (LPARAM)""); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
 					break;
@@ -1035,7 +980,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				}
 				
 				case CM_ASTYLE: {
-					MessageBox(hwnd, "±¾°æ±¾£¨5.0-Stable£©²»Ö§³Ö¸Ã¹¦ÄÜ¡£ÈôÏë³¢ÏÊ£¬ÇëÁªÏµ×÷Õß»ñÈ¡ÄÚ²â°æ±¾¡£ÏÂÒ»¸öÕýÊ½°æ±¾£¨5.1-stable£©½«»á°üº¬´Ë¹¦ÄÜ¡£\n", "Ah oh~", MB_OK);
+					MessageBox(hwnd, "This version(ClickIDE 5.0.0 Stable) doesn't have this function. \nPlease expect for version 5.1.", "Ah oh~", MB_OK|MB_ICONINFORMATION);
 					break;
 					PostMessage(hwnd, WM_COMMAND, CM_FILE_SAVE, (LPARAM)"");
 					char astylestr[MAX_PATH*6];
@@ -1056,6 +1001,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					ShellExecute(NULL,TEXT("open"), TEXT("https://ericnth.cn/clickide/"), TEXT(""),NULL,SW_SHOWNORMAL);
 					break;
 				}
+				case CM_ADDBRA: {
+					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)lParam);
+					break;
+				}
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1070,12 +1019,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			linecount = 0;
 			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\n\nFont size:%d", codealltmp.size(), wsizes[wordsizepos]);
 			SetDlgItemText(hwnd, IDC_LINE_NUM, tishitext);
-			
-			
-			//SetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT, GetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT), 1);
-			
-			
-			
+			cursorpos = SendEditor(SCI_GETCURRENTPOS);
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '(') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)")");
+			}
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '[') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"]");
+			}
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"}");
+			}
+			/*
+			if (SendEditor(SCI_GETCHARAT, cursorpos+1) == '\n') {
+				//		MessageBox(NULL, i_to_str(tabcount).c_str(), "", MB_OK);
+				//currentlinenum = SendEditor(SCI_LINEFROMPOSITION, cursorpos);
+				//if (currentlinenum > 0) {
+				
+					SendEditor(SCI_GETLINE, currentlinenum, (LPARAM)getallcodetmpstr);
+					for (int i = 0; i < strlen(getallcodetmpstr); i++) {
+						if (getallcodetmpstr[i] != '\t' && getallcodetmpstr[i] != ' ' && getallcodetmpstr[i] != '\r') {
+							break;
+						}
+						if (getallcodetmpstr[i] == '\t') {
+							tabcount += 8;
+						}
+						if (getallcodetmpstr[i] == ' ') {
+							tabcount++;
+						}
+					}
+					strcpy(getallcodetmpstr, "");
+					for (int i = 0; i < tabcount; i++) {
+						strcat(getallcodetmpstr, " ");
+					}
+					Addinfo(i_to_str(tabcount).c_str());//MessageBox(NULL, getallcodetmpstr, "", MB_OK);
+					//PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)getallcodetmpstr);
+				//}
+			}*/
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
@@ -1130,20 +1109,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
     if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ) {  
         hDLL = LoadLibrary(TEXT("SciLexer_x64.dll"));  
 		if (hDLL == NULL) {
-			MessageBox(NULL, "Fatal: SciLexer_x64.dll Not found.\n³öÏÖÁËÒ»¸öÖÂÃü´íÎó£ºSciLexer_x64.dllÕÒ²»µ½¡£\n½â¾ö·½°¸ÈçÏÂ£º\n  1.ÇëÁªÏµÈí¼þÖ§³ÖÈËÔ±£¨¿ÉÒÔÍ¨¹ýÓÊÏä£ºeric_ni2008@163.com»ò·ÃÎÊÎÒÃÇµÄÍøÕ¾ericnth.cn£©¡£\n  2.Èç¹ûÄúµÄµçÄÔÖÐÈ·ÊµÓÐSciLexer.dll»òSciLexer_x64.dll£¬Çë½«ËüÃüÃûÎªSciLexer_x64.dll£¬²¢½«ËüÌí¼ÓÖÁ»·¾³±äÁ¿PATHÖÐ¡£\n  3.Èç¹ûÄú¼±ÓÚÊ¹ÓÃÈ´²»ÖªµÀ½â¾ö·½·¨£¬ÇëÇ°Íù£ºericnth.cn/clickideÏÂÔØÎÞÍâ²¿ÒÀÀµµÄ4.x°æ±¾£¨×îÐÂ4.6.5£©¡£", "Click 5.0", MB_ICONHAND | MB_OK);
+			MessageBox(NULL, "Error: SciLexer_x64.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
 			return 0;
 		}
     } else {
       	hDLL = LoadLibrary(TEXT("SciLexer_x86.dll"));  
 		if (hDLL == NULL) {
-			MessageBox(NULL, "Fatal: SciLexer_x86.dll Not found.\n³öÏÖÁËÒ»¸öÖÂÃü´íÎó£ºSciLexer_x86.dllÕÒ²»µ½¡£\n½â¾ö·½°¸ÈçÏÂ£º\n  1.ÇëÁªÏµÈí¼þÖ§³ÖÈËÔ±£¨¿ÉÒÔÍ¨¹ýÓÊÏä£ºeric_ni2008@163.com»ò·ÃÎÊÎÒÃÇµÄÍøÕ¾ericnth.cn£©¡£\n  2.Èç¹ûÄúµÄµçÄÔÖÐÈ·ÊµÓÐSciLexer.dll»òSciLexer_x86.dll£¬Çë½«ËüÃüÃûÎªSciLexer_x64.dll£¬²¢½«ËüÌí¼ÓÖÁ»·¾³±äÁ¿PATHÖÐ¡£\n  3.Èç¹ûÄú¼±ÓÚÊ¹ÓÃÈ´²»ÖªµÀ½â¾ö·½·¨£¬ÇëÇ°Íù£ºericnth.cn/clickideÏÂÔØÎÞÍâ²¿ÒÀÀµµÄ4.x°æ±¾£¨×îÐÂ4.6.5£©¡£", "Click 5.0", MB_ICONHAND | MB_OK);
+			MessageBox(NULL, "Error: SciLexer_x86.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
 			return 0; 
 		}
 	}
 	if (strcmp(lpCmdLine, "") != 0) {
 		hasstartopenfile = 1;
 		if (_access(lpCmdLine, W_OK) == -1) {
-			MessageBox(NULL, "ÎÄ¼þ²»´æÔÚ»ò¾Ü¾ø·ÃÎÊ£¡", "Click 5.0", MB_OK);
+			MessageBox(NULL, "File does not exist or unable to read!", "Click 5.0", MB_OK);
 			hasstartopenfile = 0;
 		} else {
 			strcpy(commandline, lpCmdLine);
@@ -1183,10 +1162,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		MessageBox(0, "Window Creation Failed!", "Error!",MB_ICONEXCLAMATION|MB_OK|MB_SYSTEMMODAL);
 		return 0;
 	}
-
 	ShowWindow(hwnd,1);
 	UpdateWindow(hwnd);
+/*	SIZE sBmp = { 200, 200 };
+	LPBITMAPINFOHEADER pbi;    // the bitmap header from the file, etc.
+	LPVOID             pvBits; // the raw bitmap bits
 	
+	StretchDIBits (GetDC(hwnd), 0, 0, sBmp.cx, sBmp.cy, 
+               0, 0, sBmp.cx, sBmp.cy,
+               pvBits, pbi, 
+               DIB_RGB_COLORS, 
+               SRCCOPY);
+*/	
 
 	while(GetMessage(&Msg, NULL, 0, 0) > 0) {
 		variMsgCnt++;
