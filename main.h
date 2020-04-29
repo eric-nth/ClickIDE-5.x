@@ -30,6 +30,8 @@
 #define CM_EXPORTSET	9032
 #define CM_EDIT_FIND	9031
 #define CM_DT			9030 
+#define CM_COMPILEBTN	9028
+#define CM_ADDBRA		9027
 
 #define ID_STATUSBAR    4997
 #define ID_TOOLBAR		4998

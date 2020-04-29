@@ -27,6 +27,7 @@ string lasttimestr;
 POINT cursorpoint;
 const char* g_szKeywords="asm auto bool break case catch char class const const_cast continue default delete do double dynamic_cast else enum explicit extern false finally float for friend goto if inline int long mutable namespace new operator private protected public register reinterpret_cast register return short signed sizeof static static_cast struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while";
 
+
 LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
 	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
 }
@@ -245,7 +246,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	char cmdbuf3[MAX_PATH+40];
 	char cmdbuf4[MAX_PATH+40];
 	char cmdbuf5[MAX_PATH+40];
-	int iStatusWidths[] = {100, 230, 300, 320, -1};
+	int iStatusWidths[] = {100, 230, 330, 335, -1};
 	RECT rectStatus;
 	bool isycl = 0;
 	bool iszfc = 0;
@@ -271,6 +272,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	SCNotification* notify = (SCNotification*)lParam; 
 	HDC hdc,mdc;
 	HBITMAP bg;
+	int cursorpos;
+	DWORD dwTextLength;
+	int currentlinenum = 0;
+	int tabcount = 0;
 	/*4.8-- 
 	if (tosetcur) {
 		SetCaretPos((cursorpoint.x-6)/(wsizes[wordsizepos]/2.0), (cursorpoint.y-2)/wsizes[wordsizepos]);
@@ -307,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(g_hStatusBar, SB_SETPARTS, 5, (LPARAM)iStatusWidths);
 			SendMessage(g_hStatusBar, SB_SETTEXT, 0, (LPARAM)"Click 5.0 IDE"); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-			SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+			SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 3, (LPARAM)""); 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
 			/*--3.10*/
@@ -434,14 +439,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			RECT rectClient, rectStatus, rectTool;
 			UINT uToolHeight, uStatusHeight, uClientAlreaHeight;
 			
-			GetWindowRect(hwnd,&rctA);//Í¨     Ú¾    Ã´  ÚµÄ´ Ð¡ æ´¢  rctA á¹¹  
+			GetWindowRect(hwnd,&rctA);
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
 			if(wParam != SIZE_MINIMIZED) {
-				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-275,/*HIWORD(lParam)*/wheight-240, TRUE);
+				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-75,/*HIWORD(lParam)*/wheight-240, TRUE);
 				MoveWindow(GetDlgItem(hwnd, IDC_LINE_NUM), 0, 30, /*LOWORD(lParam)*/60,/*HIWORD(lParam)*/wheight-120, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-275/*CW_USEDEFAULT*/, 25, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-275/*CW_USEDEFAULT*/, 95, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-75/*CW_USEDEFAULT*/, 25, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-75/*CW_USEDEFAULT*/, 95, TRUE);
 		    }
 			SendMessage(g_hToolBar, TB_AUTOSIZE, 0, 0);
 			SendMessage(g_hStatusBar, WM_SIZE, 0, 0);
@@ -464,6 +469,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);
 					MessageBox(hwnd, getallcodetmpstr, "", MB_OK);
 					MessageBox(NULL, i_to_str(GetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT)).c_str(), "", MB_OK);
+					//MessageBox(NULL, i_to_str(pointtmp.x).c_str(), "", MB_OK);
+					cursorpos = SendEditor(SCI_GETCURRENTPOS);
+					dwTextLength = SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_GETLENGTH, SCI_NULL, SCI_NULL);
+					char pszText[dwTextLength];
+					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_GETTEXT, dwTextLength+1, (LPARAM)pszText);
+					MessageBox(hwnd, i_to_str(pszText[cursorpos]).c_str(), "", MB_OK);
+					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)")");
 					break;
 				}
 				case CM_FILE_OPEN:
@@ -480,7 +492,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					if (!DoFileOpenSave(hwnd, FALSE)) {
 						titlestr01="Click 5.0";
 						SetWindowText (hwnd, titlestr01.c_str());
-						SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+						SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 						break;
 					}
@@ -490,13 +502,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					titlestr01+=szFileName;
 					titlestr01+=" ]";
 					SetWindowText (hwnd, titlestr01.c_str());
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					/*end:settitle*/ 
 					break;
 				case CM_WLARGE: {
 					if (wordsizepos >= 15) {
-						MessageBox(hwnd, " Ñ¾         å£¡", "", MB_OK);
+						MessageBox(hwnd, "Words cannot be bigger anymore!", "", MB_OK);
 						break;
 					}
 					///*4.7*/hFont = CreateFont(wsizes[++wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
@@ -506,7 +518,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				}
 				case CM_WSMALL: {
 					if (wordsizepos <= 0) {
-						MessageBox(hwnd, " Ñ¾     Ð¡   å£¡", "", MB_OK);
+						MessageBox(hwnd, "Words cannot be smaller anymore!", "", MB_OK);
 						break;
 					}
 					///*4.7*/hFont = CreateFont(wsizes[--wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
@@ -712,7 +724,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					titlestr01+=" ]";
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					SetWindowText (hwnd, titlestr01.c_str());
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILERUN:
@@ -826,7 +838,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				case CM_FLSTB:
 					SendMessage(g_hStatusBar, SB_SETTEXT, 0, (LPARAM)"Click 5.0 IDE"); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "ÒÑ±àÒë" : "Î´±àÒë")); 
+					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 3, (LPARAM)""); 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
 					break;
@@ -989,6 +1001,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					ShellExecute(NULL,TEXT("open"), TEXT("https://ericnth.cn/clickide/"), TEXT(""),NULL,SW_SHOWNORMAL);
 					break;
 				}
+				case CM_ADDBRA: {
+					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)lParam);
+					break;
+				}
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1003,8 +1019,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			linecount = 0;
 			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\n\nFont size:%d", codealltmp.size(), wsizes[wordsizepos]);
 			SetDlgItemText(hwnd, IDC_LINE_NUM, tishitext);
-			
-			//SetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT, GetScrollPos(GetDlgItem(hwnd, IDC_MAIN_TEXT), SB_VERT), 1);
+			cursorpos = SendEditor(SCI_GETCURRENTPOS);
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '(') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)")");
+			}
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '[') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"]");
+			}
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"}");
+			}
+			/*
+			if (SendEditor(SCI_GETCHARAT, cursorpos+1) == '\n') {
+				//		MessageBox(NULL, i_to_str(tabcount).c_str(), "", MB_OK);
+				//currentlinenum = SendEditor(SCI_LINEFROMPOSITION, cursorpos);
+				//if (currentlinenum > 0) {
+				
+					SendEditor(SCI_GETLINE, currentlinenum, (LPARAM)getallcodetmpstr);
+					for (int i = 0; i < strlen(getallcodetmpstr); i++) {
+						if (getallcodetmpstr[i] != '\t' && getallcodetmpstr[i] != ' ' && getallcodetmpstr[i] != '\r') {
+							break;
+						}
+						if (getallcodetmpstr[i] == '\t') {
+							tabcount += 8;
+						}
+						if (getallcodetmpstr[i] == ' ') {
+							tabcount++;
+						}
+					}
+					strcpy(getallcodetmpstr, "");
+					for (int i = 0; i < tabcount; i++) {
+						strcat(getallcodetmpstr, " ");
+					}
+					Addinfo(i_to_str(tabcount).c_str());//MessageBox(NULL, getallcodetmpstr, "", MB_OK);
+					//PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)getallcodetmpstr);
+				//}
+			}*/
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
@@ -1014,25 +1064,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
    			return (long long int)((HBRUSH)GetStockObject(NULL_BRUSH));
    			break;
    		}*/
-   		
-   		//case WM_NOTIFY:
-   			/*
-			notify = (SCNotification*)lParam;
-			//      Ô¶      
-        	static int LastProcessedChar = 0; 
-        	//  CharAdded Â¼  Ã¬ Â¼         Ö·  
-        	if(notify->nmhdr.code == SCN_CHARADDED) { 
-            	LastProcessedChar = notify->ch; 
-        	} 
-        	Addinfo(i_to_str(LastProcessedChar).c_str());
-			//MessageBox(NULL, i_to_str(LastProcessedChar).c_str(), "", 0);
-        	if (LastProcessedChar != 0) {
-        		if (LastProcessedChar == (int)'(') {
-        			Addinfo("    ");//MessageBox(NULL, "   Ã¾ ", "", MB_OK);
-				}
-				
-			}
-			*/
 		case WM_CLOSE:
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Exitting..."); 
 					/*settitle*/ 
@@ -1091,7 +1122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (strcmp(lpCmdLine, "") != 0) {
 		hasstartopenfile = 1;
 		if (_access(lpCmdLine, W_OK) == -1) {
-			MessageBox(NULL, "ÎÄ¼þ²»´æÔÚ»ò¾Ü¾ø·ÃÎÊ¡£", "Click 5.0", MB_OK);
+			MessageBox(NULL, "File does not exist or unable to read!", "Click 5.0", MB_OK);
 			hasstartopenfile = 0;
 		} else {
 			strcpy(commandline, lpCmdLine);
