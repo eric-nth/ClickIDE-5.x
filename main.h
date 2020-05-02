@@ -32,6 +32,8 @@
 #define CM_DT			9030 
 #define CM_COMPILEBTN	9028
 #define CM_ADDBRA		9027
+#define CM_ADDBRAEX		9026
+#define CM_SETCURSOR	9025
 
 #define ID_STATUSBAR    4997
 #define ID_TOOLBAR		4998

@@ -403,7 +403,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			*/
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, NULL); //C++      
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t)g_szKeywords);//   ùؼ   
-			//        ø     Ԫ  ǰ  ɫ
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_WORD, 0x00FF0000);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));// ַ   
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));// ַ 
@@ -1005,6 +1004,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)lParam);
 					break;
 				}
+				case CM_ADDBRAEX: {
+					SendEditor(SCI_INSERTTEXT, HIWORD(wParam), (LPARAM)lParam);
+					break;
+				}
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1013,11 +1016,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			EnableMenuItem(hCompileMenu, CM_RUN, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
 			EnableMenuItem(hCompileMenu, CM_DEBUG, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
 			char tishitext[1024];
-			GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);
-			codealltmp.clear();
-			codealltmp+=getallcodetmpstr;
 			linecount = 0;
-			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\n\nFont size:%d", codealltmp.size(), wsizes[wordsizepos]);
+			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\n\nFont size:%d", SendEditor(SCI_GETTEXTLENGTH), wsizes[wordsizepos]);
 			SetDlgItemText(hwnd, IDC_LINE_NUM, tishitext);
 			cursorpos = SendEditor(SCI_GETCURRENTPOS);
 			if (SendEditor(SCI_GETCHARAT, cursorpos) == '(') {
@@ -1026,35 +1026,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			if (SendEditor(SCI_GETCHARAT, cursorpos) == '[') {
 				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"]");
 			}
-			if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {
-				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"}");
-			}
-			/*
-			if (SendEditor(SCI_GETCHARAT, cursorpos+1) == '\n') {
-				//		MessageBox(NULL, i_to_str(tabcount).c_str(), "", MB_OK);
-				//currentlinenum = SendEditor(SCI_LINEFROMPOSITION, cursorpos);
-				//if (currentlinenum > 0) {
-				
-					SendEditor(SCI_GETLINE, currentlinenum, (LPARAM)getallcodetmpstr);
-					for (int i = 0; i < strlen(getallcodetmpstr); i++) {
-						if (getallcodetmpstr[i] != '\t' && getallcodetmpstr[i] != ' ' && getallcodetmpstr[i] != '\r') {
-							break;
-						}
-						if (getallcodetmpstr[i] == '\t') {
-							tabcount += 8;
-						}
-						if (getallcodetmpstr[i] == ' ') {
-							tabcount++;
-						}
-					}
-					strcpy(getallcodetmpstr, "");
-					for (int i = 0; i < tabcount; i++) {
-						strcat(getallcodetmpstr, " ");
-					}
-					Addinfo(i_to_str(tabcount).c_str());//MessageBox(NULL, getallcodetmpstr, "", MB_OK);
-					//PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)getallcodetmpstr);
-				//}
-			}*/
+			//if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\r\n\t\r\n}");}
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
