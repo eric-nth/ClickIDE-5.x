@@ -26,7 +26,7 @@ char commandline[MAX_PATH*10] = "";
 string lasttimestr;
 POINT cursorpoint;
 const char* g_szKeywords="asm auto bool break case catch char class const const_cast continue default delete do double dynamic_cast else enum explicit extern false finally float for friend goto if inline int long mutable namespace new operator private protected public register reinterpret_cast register return short signed sizeof static static_cast struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while";
-
+vector<string> funclists;
 
 LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
 	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
@@ -289,7 +289,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			wheight = rctA.bottom - rctA.top;
 			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-275/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
 			CreateWindow("STATIC", "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0",WS_CHILD|WS_VISIBLE|WS_BORDER,0, 30, 60/*CW_USEDEFAULT*/, wheight-120,hwnd, (HMENU)IDC_LINE_NUM, GetModuleHandle(NULL), NULL);
-			CreateWindow("EDIT", "g++.exe %f -o %e",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-275/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "g++.exe %f -o %e -lm",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-275/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
 			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-275/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
 			
 			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
@@ -620,6 +620,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 							MessageBox(hwnd, "Fail to run program! Please look at the details in the \"Information\" Box.", "Click 5.0", MB_OK|MB_ICONHAND);
 							sprintf(cmdbuf3, "Fail to run program: \r\n%s.exe\r\nMaybe it is because that you failed in compilation.\r\nAnd make sure that you added \"-o %%e\" option when inputting compiling order.", getcppfn(szFileName).c_str());
 							Addinfo(cmdbuf3);
+							titlestr01="Click 5.0 [ ";
+							titlestr01+=szFileName;
+							titlestr01+=" ]";
+							SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
+							SetWindowText (hwnd, titlestr01.c_str());
 							break;
 						}
 						sprintf(cmdbuf3, "Running program: \r\n%s.exe", getcppfn(szFileName).c_str());
@@ -1008,6 +1013,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SendEditor(SCI_INSERTTEXT, HIWORD(wParam), (LPARAM)lParam);
 					break;
 				}
+				case CM_AUTOSAVE: {
+					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Autosaving..."); 
+					sprintf(szFileName2, "%s.clickide.autosave.txt", szFileName);
+					if ((!fsaved && !fopend) || strcmp(szFileName, "Untitled") == 0) {
+						;
+					} else {
+						SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName2);
+						SetFileAttributes(szFileName2, FILE_ATTRIBUTE_HIDDEN);
+					}
+					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
+					break;
+				}
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1077,6 +1094,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine, int nCmdShow) {
 	SYSTEM_INFO si;
 	HINSTANCE hDLL; 
+	clock_t programstarttime = clock();
     SafeGetNativeSystemInfo(&si);  
     if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ) {  
         hDLL = LoadLibrary(TEXT("SciLexer_x64.dll"));  
@@ -1148,6 +1166,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 */	
 
 	while(GetMessage(&Msg, NULL, 0, 0) > 0) {
+		if ((clock() - programstarttime) % 60000 > 59500) {
+			SendMessage(hwnd, WM_COMMAND, CM_AUTOSAVE, 0);
+		}
 		variMsgCnt++;
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
