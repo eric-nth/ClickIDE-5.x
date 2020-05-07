@@ -287,17 +287,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			GetWindowRect(hwnd,&rctA);//ͨ     ھ    ô  ڵĴ С 洢  rctA ṹ  
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
-			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-275/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
-			CreateWindow("STATIC", "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0",WS_CHILD|WS_VISIBLE|WS_BORDER,0, 30, 60/*CW_USEDEFAULT*/, wheight-120,hwnd, (HMENU)IDC_LINE_NUM, GetModuleHandle(NULL), NULL);
-			CreateWindow("EDIT", "g++.exe %f -o %e -lm",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-275/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
-			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-275/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
+			CreateWindow("Scintilla", "",WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL|ES_MULTILINE|ES_WANTRETURN|WS_BORDER,60, 30, wwidth-180/*CW_USEDEFAULT*/, wheight-240,hwnd, (HMENU)IDC_MAIN_TEXT, GetModuleHandle(NULL), NULL);
+			CreateWindow("STATIC", "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0",WS_CHILD|WS_VISIBLE|WS_BORDER,0, 30, 60/*CW_USEDEFAULT*/, wheight-160,hwnd, (HMENU)IDC_LINE_NUM, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "g++.exe %f -o %e -lm",WS_CHILD|WS_VISIBLE|WS_BORDER,60, wheight-115, wwidth-180/*CW_USEDEFAULT*/, 25,hwnd, (HMENU)ID_COMPILEORDER, GetModuleHandle(NULL), NULL);
+			CreateWindow("EDIT", "",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|WS_VSCROLL|ES_WANTRETURN,60, wheight-210, wwidth-180/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILERES, GetModuleHandle(NULL), NULL);
+			CreateWindow("BUTTON", "Q",WS_CHILD|WS_VISIBLE|WS_BORDER,wwidth-120, 30, 100/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILENOW, GetModuleHandle(NULL), NULL);
+			CreateWindow("BUTTON", "<",WS_CHILD|WS_VISIBLE|WS_BORDER,wwidth-120, 130, 100/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_SAVENOW, GetModuleHandle(NULL), NULL);
 			
 			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
 			/*4.7*/hFont_ln = CreateFont(14,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_LINE_NUM, WM_SETFONT,(WPARAM)hFont_ln/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
-			///*4.7*/SendDlgItemMessage(hwnd, IDC_QUICKFUNC, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
+			///*4.7*/SendDlgItemMessage(hwnd, IDC_QUICKFUNC, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));    
+			   
+			/*4.7*/hFont_ln = CreateFont(72,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Wingdings");//    
+			/*4.7*/SendDlgItemMessage(hwnd, ID_COMPILENOW, WM_SETFONT,(WPARAM)hFont_ln/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));    
+			/*4.7*/SendDlgItemMessage(hwnd, ID_SAVENOW, WM_SETFONT,(WPARAM)hFont_ln/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0)); 
 			
 			/*5.0*/hFont = CreateFont(18,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			SendDlgItemMessage(hwnd, ID_COMPILEORDER, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
@@ -442,10 +448,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			wwidth = rctA.right - rctA.left;
 			wheight = rctA.bottom - rctA.top;
 			if(wParam != SIZE_MINIMIZED) {
-				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-75,/*HIWORD(lParam)*/wheight-240, TRUE);
+				MoveWindow(GetDlgItem(hwnd, IDC_MAIN_TEXT), 60, 30, /*LOWORD(lParam)*/wwidth-160,/*HIWORD(lParam)*/wheight-240, TRUE);
 				MoveWindow(GetDlgItem(hwnd, IDC_LINE_NUM), 0, 30, /*LOWORD(lParam)*/60,/*HIWORD(lParam)*/wheight-120, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-75/*CW_USEDEFAULT*/, 25, TRUE);
-				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-75/*CW_USEDEFAULT*/, 95, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILEORDER), 60, wheight-115, wwidth-160/*CW_USEDEFAULT*/, 25, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-160/*CW_USEDEFAULT*/, 95, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_COMPILENOW), wwidth-100, 35, 80/*CW_USEDEFAULT*/, 80, TRUE);
+				MoveWindow(GetDlgItem(hwnd, ID_SAVENOW), wwidth-100, 120, 80/*CW_USEDEFAULT*/, 80, TRUE);
+				//MoveWindow(GetDlgItem(hwnd, ID_COMPILERES), 60, wheight-210, wwidth-180/*CW_USEDEFAULT*/, 95, TRUE);
 		    }
 			SendMessage(g_hToolBar, TB_AUTOSIZE, 0, 0);
 			SendMessage(g_hStatusBar, WM_SIZE, 0, 0);
@@ -633,7 +642,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						runprocess (cmdbuf2, 0, 1);
 					} else {
 						MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
-						sprintf(cmdbuf3, "Fail to run program: \r\n%s.exe\r\nPlease compile it first.", getcppfn(szFileName).c_str());
+						sprintf(cmdbuf3, "Fail to run program: \r\nPlease compile it first.");
 						Addinfo(cmdbuf3);
 					}
 					/*settitle*/ 
@@ -1023,6 +1032,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						SetFileAttributes(szFileName2, FILE_ATTRIBUTE_HIDDEN);
 					}
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
+					break;
+				}
+				case ID_COMPILENOW: {
+					SendMessage(hwnd, WM_COMMAND, CM_COMPILERUN, 0);
+					break;
+				}
+				case ID_SAVENOW: {
+					SendMessage(hwnd, WM_COMMAND, CM_FILE_SAVE, 0);
 					break;
 				}
 			}
