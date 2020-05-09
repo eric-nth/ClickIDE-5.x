@@ -57,6 +57,7 @@ void Addinfo(const char info[]) {
 	SetDlgItemText(hwnd, ID_COMPILERES, aftertext.c_str());
 }
 
+
 void SafeGetNativeSystemInfo(LPSYSTEM_INFO lpSystemInfo)  
     {  
         if (NULL==lpSystemInfo)    return;  
@@ -641,8 +642,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
 						runprocess (cmdbuf2, 0, 1);
 					} else {
-						MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
-						sprintf(cmdbuf3, "Fail to run program: \r\nPlease compile it first.");
+						//MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
+						sprintf(cmdbuf3, "Unable to run program: \r\nPlease compile it (correctly) first.");
 						Addinfo(cmdbuf3);
 					}
 					/*settitle*/ 
@@ -1113,7 +1114,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	HINSTANCE hDLL; 
 	clock_t programstarttime = clock();
     SafeGetNativeSystemInfo(&si);  
+    HWND loaddllmbhwnd;
     if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ) {  
+    	/*MessageBox(NULL, "Loading SciLexer_x64.dll...", "ClickIDE", MB_OK);
+    	Sleep(500);
+    	keybd_event(VK_RETURN, 0, 0, 0);*/
         hDLL = LoadLibrary(TEXT("SciLexer_x64.dll"));  
 		if (hDLL == NULL) {
 			MessageBox(NULL, "Error: SciLexer_x64.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
