@@ -38,11 +38,9 @@ MAINMENU MENU
  	MENUITEM "Astyle", CM_ASTYLE
  	MENUITEM "Export Html With Highlights", CM_GHTML
  	MENUITEM SEPARATOR
-	MENUITEM "Larger Words", CM_WLARGE
-	MENUITEM "Smaller Words", CM_WSMALL
-	MENUITEM "Change Another Font", CM_CFONT
-	MENUITEM SEPARATOR
-	MENUITEM "Developer Tools", CM_DT
+	//MENUITEM "Larger Words", CM_WLARGE
+	//MENUITEM "Smaller Words", CM_WSMALL
+	//MENUITEM "Change Another Font", CM_CFONT
 	MENUITEM SEPARATOR
 	MENUITEM "&Import Settings", CM_IMPORTSET
  }
