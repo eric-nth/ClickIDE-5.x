@@ -35,6 +35,7 @@
 #define CM_ADDBRAEX		9026
 #define CM_SETCURSOR	9025
 #define CM_AUTOSAVE		9024
+#define CM_EDIT_ALL		9023
 
 #define ID_STATUSBAR    4997
 #define ID_TOOLBAR		4998

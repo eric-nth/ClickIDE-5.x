@@ -277,6 +277,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	DWORD dwTextLength;
 	int currentlinenum = 0;
 	int tabcount = 0;
+	//char  linebuf[10000];
+    //int  curLine  =  GetCurrentLineNumber();
+    //int  lineLength  =  SendEditor(SCI_LINELENGTH,  curLine);
 	/*4.8-- 
 	if (tosetcur) {
 		SetCaretPos((cursorpoint.x-6)/(wsizes[wordsizepos]/2.0), (cursorpoint.y-2)/wsizes[wordsizepos]);
@@ -515,6 +518,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					/*end:settitle*/ 
 					break;
+				case CM_EDIT_ALL: {
+					SendEditor(SCI_SELECTALL);
+					break;
+				}
 				case CM_WLARGE: {
 					if (wordsizepos >= 15) {
 						MessageBox(hwnd, "Words cannot be bigger anymore!", "", MB_OK);
@@ -1091,7 +1098,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			DestroyWindow(hwnd);
 			break;
 		case WM_NOTIFY: {
-			
+			SCNotification* notify = (SCNotification*)lParam;
+			if (notify->ch == '\r' || notify->ch == '\n') {
+				char linebuf[10000];
+				Addinfo("Line");
+			}
 			break;
 		}
 		case WM_DESTROY:
