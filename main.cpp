@@ -11,6 +11,7 @@
 
 using namespace std;
 HWND hwnd;
+bool tabwidthset = 0;
 string codealltmp = "";
 int wordsizepos = 2;
 int wsizes[16] = {4,8,11,12,14,16,18,20,22,24,30,36,48,60,72,96};
@@ -429,12 +430,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN,0,(sptr_t)40);
 			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_CLEARCMDKEY, (WPARAM)('F'+(SCMOD_CTRL<<16)), SCI_NULL);
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCODEPAGE, SC_CP_UTF8, SCI_NULL);
 			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)"Consolas");
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,(sptr_t)wsizes[wordsizepos]);
 			
-			SendEditor(SCI_SETTABWIDTH, 4, 0);//tab  4   ո  
 			
 			if (hasstartopenfile) {
 				LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
@@ -477,6 +476,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		case WM_COMMAND:
 			switch(LOWORD(wParam)) {
+				case CM_SETTABWIDTH: {
+					SendEditor(SCI_SETTABWIDTH, 4, 0);//tab  4   ո  
+					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETBOLD, SCE_C_WORD, true);
+					SendEditor(SCI_SETCODEPAGE,SC_CP_UTF8);
+					break;
+				}
 				case CM_DT: {
 					GetDlgItemText(hwnd, IDC_MAIN_TEXT, getallcodetmpstr, 200000);
 					MessageBox(hwnd, getallcodetmpstr, "", MB_OK);
@@ -855,6 +860,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					repfindtag.lpfnHook = NULL;
 					repfindtag.lStructSize = sizeof(repfindtag);
 					FindText(&repfindtag);
+					//Addinfo(repfindtag.lpstrFindWhat);
+					//SendEditor(SCI_SEARCHINTARGET, SendEditor(SCI_GETTARGETTEXT, 0, (LPARAM)repfindtag.lpstrFindWhat));
 					break;
 				case CM_FLSTB:
 					SendMessage(g_hStatusBar, SB_SETTEXT, 0, (LPARAM)"Click 5.0 IDE"); 
@@ -1059,7 +1066,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			EnableMenuItem(hCompileMenu, CM_DEBUG, MF_BYCOMMAND | ((fcompiled) ? MF_ENABLED : MF_GRAYED));
 			char tishitext[1024];
 			linecount = 0;
-			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\n\nFont size:%d", SendEditor(SCI_GETTEXTLENGTH), wsizes[wordsizepos]);
+			sprintf(tishitext, "Welcome\nto\nClickIDE!\n\nVersion:\n5.0.0\n\nWords:\n%d\nLines:\n%d\n\nFont size:%d", SendEditor(SCI_GETTEXTLENGTH), SendEditor(SCI_GETLINECOUNT), wsizes[wordsizepos]);
 			SetDlgItemText(hwnd, IDC_LINE_NUM, tishitext);
 			cursorpos = SendEditor(SCI_GETCURRENTPOS);
 			if (SendEditor(SCI_GETCHARAT, cursorpos) == '(') {
@@ -1067,6 +1074,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			}
 			if (SendEditor(SCI_GETCHARAT, cursorpos) == '[') {
 				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"]");
+			}
+			if (!tabwidthset) {
+				PostMessage(hwnd, WM_COMMAND, CM_SETTABWIDTH, 0);
+				tabwidthset = 1;
 			}
 			//if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\r\n\t\r\n}");}
 			break;
@@ -1078,12 +1089,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
    			return (long long int)((HBRUSH)GetStockObject(NULL_BRUSH));
    			break;
    		}*/
+		case WM_NOTIFY: {
+			SCNotification* notify = (SCNotification*)lParam;
+			switch (notify->nmhdr.code) {
+				case SCN_CHARADDED: {
+					if (notify->ch == '\r' || notify->ch == '\n') {
+						char linebuf[10000];
+						Addinfo("Line");
+					}
+					break;
+				}
+			}
+			break;
+		}
 		case WM_CLOSE:
-					SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Exitting..."); 
-					/*settitle*/ 
-					titlestr01="Click 5.0 [ Exiting... ]";
-					SetWindowText (hwnd, titlestr01.c_str());
-					/*end:settitle*/ 
+			SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Exitting..."); 
+			/*settitle*/ 
+			titlestr01="Click 5.0 [ Exiting... ]";
+			SetWindowText (hwnd, titlestr01.c_str());
+			/*end:settitle*/ 
 			if (MessageBox (hwnd, "Are you sure to quit? \nThings which are not saved will be lost!", "Exiting...", MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
 				/*settitle*/ 
 				titlestr01="Click 5.0 [ ";
@@ -1097,14 +1121,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			programmeexiterrorstatusflag = 0;
 			DestroyWindow(hwnd);
 			break;
-		case WM_NOTIFY: {
-			SCNotification* notify = (SCNotification*)lParam;
-			if (notify->ch == '\r' || notify->ch == '\n') {
-				char linebuf[10000];
-				Addinfo("Line");
-			}
-			break;
-		}
 		case WM_DESTROY:
 			/*
 			if (programmeexiterrorstatusflag) {
