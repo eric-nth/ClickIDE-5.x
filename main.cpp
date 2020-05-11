@@ -438,7 +438,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			if (hasstartopenfile) {
 				LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
 				strcpy(szFileName, commandline);
-				SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName); 
+				SendMessage(g_hStatusBar, SB_SETTEXT, 4, (LPARAM)szFileName);
+				PostMessage(hwnd, WM_COMMAND, CM_LOADFILE, 0);
 			}
 			
 			return 0;
@@ -476,6 +477,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		case WM_COMMAND:
 			switch(LOWORD(wParam)) {
+				case CM_LOADFILE: {
+					if(!LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
+						MessageBox(hwnd, "Load of file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
+						fopend=0;
+						return FALSE;
+					}
+					break;
+				}
 				case CM_SETTABWIDTH: {
 					SendEditor(SCI_SETTABWIDTH, 4, 0);//tab  4   ո  
 					SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETBOLD, SCE_C_WORD, true);
@@ -1181,7 +1190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = hInstance;
-	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hIcon         = LoadIcon(NULL, "A"/*IDI_APPLICATION*/);
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = "MAINMENU";
