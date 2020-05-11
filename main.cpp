@@ -676,6 +676,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILE:
+					SendEditor(SCI_SETCURSOR, SC_CURSORWAIT);
 					char compileordertmptmp[800];
 					GetDlgItemText(hwnd, ID_COMPILEORDER, compileordertmptmp, 800);
 					compileordertmp.clear();
@@ -761,6 +762,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SetWindowText (hwnd, titlestr01.c_str());
 					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					/*end:settitle*/ 
+					SendEditor(SCI_SETCURSOR, SC_CURSORNORMAL);
 					break;
 				case CM_COMPILERUN:
 					SendMessage(hwnd, WM_COMMAND, CM_COMPILE, NULL);
@@ -1089,6 +1091,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				tabwidthset = 1;
 			}
 			//if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\r\n\t\r\n}");}
+			
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
