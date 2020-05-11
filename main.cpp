@@ -1120,18 +1120,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			titlestr01="Click 5.0 [ Exiting... ]";
 			SetWindowText (hwnd, titlestr01.c_str());
 			/*end:settitle*/ 
-			if (MessageBox (hwnd, "Are you sure to quit? \nThings which are not saved will be lost!", "Exiting...", MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
-				/*settitle*/ 
-				titlestr01="Click 5.0 [ ";
-				titlestr01+=szFileName;
-				titlestr01+=" ]";
-				SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
-				SetWindowText (hwnd, titlestr01.c_str());
-				/*end:settitle*/ 
+			inttmpnum = MessageBox (hwnd, "Do you want to save the changes before you quit?", "Exiting...", MB_YESNOCANCEL | MB_ICONQUESTION);
+			if (inttmpnum == IDYES) {
+				if ((!fsaved && !fopend) || strcmp(szFileName, "Untitled") == 0) {
+					if (!DoFileOpenSave(hwnd, TRUE)) {
+						SetWindowText (hwnd, "Click 5.0");
+						break;
+					}
+				} else {
+					if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
+						MessageBox(hwnd, "Save file failed.\n(Or this is an empty file.)", "Error",MB_OK|MB_ICONEXCLAMATION);
+						fsaved=0;
+					}
+				}
+				PostMessage(hwnd, WM_COMMAND, CM_FILE_SAVEAS, 0);
+				programmeexiterrorstatusflag = 0;
+				DestroyWindow(hwnd);
+				break;
+			} else if (inttmpnum == IDNO) {
+				programmeexiterrorstatusflag = 0;
+				DestroyWindow(hwnd);
 				break;
 			}
-			programmeexiterrorstatusflag = 0;
-			DestroyWindow(hwnd);
+			/*settitle*/ 
+			titlestr01="Click 5.0 [ ";
+			titlestr01+=szFileName;
+			titlestr01+=" ]";
+			SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
+			SetWindowText (hwnd, titlestr01.c_str());
+			/*end:settitle*/ 
 			break;
 		case WM_DESTROY:
 			/*
