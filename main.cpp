@@ -676,7 +676,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					break;
 				case CM_COMPILE:
-					SendEditor(SCI_SETCURSOR, SC_CURSORWAIT);
 					char compileordertmptmp[800];
 					GetDlgItemText(hwnd, ID_COMPILEORDER, compileordertmptmp, 800);
 					compileordertmp.clear();
@@ -717,6 +716,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 							break;
 						}
 					}
+					SendEditor(SCI_SETCURSOR, SC_CURSORWAIT);
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ Compiling ] [ ";
 					titlestr01+=szFileName;
@@ -741,6 +741,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						}
 					}
 					wndfin.close();
+					SendEditor(SCI_SETCURSOR, SC_CURSORNORMAL);
 					if (errreportcnt>1) {
 						sprintf(compileresult, "Compilation Result\r\nOrder: %s\r\nCompiler output: %s\r\nResult: Failed.", cmdbuf1, errreporti.c_str());
 						Addinfo(compileresult);
@@ -762,7 +763,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SetWindowText (hwnd, titlestr01.c_str());
 					SendMessage(g_hStatusBar, SB_SETTEXT, 2, (LPARAM)(fcompiled ? "Compiled" : "Not Compiled")); 
 					/*end:settitle*/ 
-					SendEditor(SCI_SETCURSOR, SC_CURSORNORMAL);
 					break;
 				case CM_COMPILERUN:
 					SendMessage(hwnd, WM_COMMAND, CM_COMPILE, NULL);
