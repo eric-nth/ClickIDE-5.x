@@ -1081,8 +1081,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					strcpy(tmpspaces, "");
 					//Addinfo(i_to_str(SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1)).c_str());
 					//SendEditor(SCI_SETLINEINDENTATION, cursorpos, SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1));
-					for (int i = 0; i < SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1); i++) {
+					inttmpnum = SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1);
+					for (int i = 0; i < inttmpnum / 4; i++) {
+						strcat(tmpspaces, "\t");
+					}
+					for (int i = 0; i < inttmpnum % 4; i++) {
 						strcat(tmpspaces, " ");
+					}
+					SendEditor(SCI_GETLINE, cursorpos-1, (LPARAM)getallcodetmpstr);
+					for (int i = strlen(getallcodetmpstr)-1; i >= 0; i--) {
+						if (getallcodetmpstr[i] == '{') {
+							strcat(tmpspaces, "\t");
+							break;
+						} else if (getallcodetmpstr[i] == ' ' || getallcodetmpstr[i] == '\r' || getallcodetmpstr[i] == '\n') {
+							continue;
+						} else {
+							break;
+						}
 					}
 					PostMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS)-1), (LPARAM)tmpspaces);
 					break;
@@ -1104,6 +1119,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			}
 			if (SendEditor(SCI_GETCHARAT, cursorpos) == '[') {
 				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"]");
+			}
+			if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {
+				PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\n}");
 			}
 			if (!tabwidthset) {
 				PostMessage(hwnd, WM_COMMAND, CM_SETTABWIDTH, 0);
@@ -1133,6 +1151,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						codealltmp += " ";
 					}
 					PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)codealltmp.c_str());
+					
 					//Addinfo(i_to_str(inttmpnum).c_str());
 				}
 			}
@@ -1185,11 +1204,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					if (!DoFileOpenSave(hwnd, TRUE)) {
 						SetWindowText (hwnd, "Click 5.0");
 						break;
+					} else {
+						remove(szFileName2);
 					}
 				} else {
 					if(!SaveFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
 						MessageBox(hwnd, "Save file failed.\n(Or this is an empty file.)", "Error",MB_OK|MB_ICONEXCLAMATION);
 						fsaved=0;
+					} else {
+						remove(szFileName2);
 					}
 				}
 				PostMessage(hwnd, WM_COMMAND, CM_FILE_SAVEAS, 0);
