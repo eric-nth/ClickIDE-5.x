@@ -425,11 +425,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC, RGB(2, 122, 250));// ĵ ע ͣ /**  ͷ  
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_INDENTGUIDE, RGB(128, 128, 128));
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_CONTROLCHAR, RGB(128, 128, 28));
 			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINTYPEN,0,(sptr_t)SC_MARGIN_NUMBER);
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN,0,(sptr_t)40);
 			
-			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_CLEARCMDKEY, (WPARAM)('F'+(SCMOD_CTRL<<16)), SCI_NULL);
+			//SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_CLEARCMDKEY, (WPARAM)('F'+(SCMOD_CTRL<<16)), SCI_NULL);
 			
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)"Consolas");
 			SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,(sptr_t)wsizes[wordsizepos]);
@@ -1068,6 +1070,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SendMessage(hwnd, WM_COMMAND, CM_FILE_SAVE, 0);
 					break;
 				}
+				case CM_CHECKINDENT: {
+					if (SendEditor(SCI_GETLINEINDENTATION, cursorpos-1) <= 0) {
+						break;
+					}
+					if (SendEditor(SCI_GETLINEINDENTATION, cursorpos) > 0) {
+						break;
+					}
+					char tmpspaces[1000];
+					strcpy(tmpspaces, "");
+					//Addinfo(i_to_str(SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1)).c_str());
+					//SendEditor(SCI_SETLINEINDENTATION, cursorpos, SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1));
+					for (int i = 0; i < SendEditor(SCI_GETLINEINDENTATION, cursorpos - 1); i++) {
+						strcat(tmpspaces, " ");
+					}
+					PostMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS)-1), (LPARAM)tmpspaces);
+					break;
+				}
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1091,7 +1110,43 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				tabwidthset = 1;
 			}
 			//if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\r\n\t\r\n}");}
-			
+			cursorpos = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
+			if (/*cursorpos != 0*/0) {
+				if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
+					SendEditor(SCI_GETLINE, cursorpos-1, (LPARAM)getallcodetmpstr);
+					Addinfo("");
+					inttmpnum = 0;
+					for (int i = 0; i < strlen(getallcodetmpstr); i++) {
+						if (getallcodetmpstr[i] == '\t') {
+							inttmpnum += 4;
+						} else if (getallcodetmpstr[i] == ' ') {
+							inttmpnum += 1; 
+						} else {
+							break;
+						}
+					}
+					codealltmp.clear();
+					for (int i = 0; i < inttmpnum / 4; i++) {
+						codealltmp += "\t";
+					}
+					for (int i = 0; i < inttmpnum % 4; i++) {
+						codealltmp += " ";
+					}
+					PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)codealltmp.c_str());
+					//Addinfo(i_to_str(inttmpnum).c_str());
+				}
+			}
+			if (cursorpos != 0) {
+				if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
+					if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
+						if (SendEditor(SCI_GETLINEINDENTATION, cursorpos-1) > 0) {
+							if (SendEditor(SCI_GETLINEINDENTATION, cursorpos) <= 0) {
+						PostMessage(hwnd, WM_COMMAND, CM_CHECKINDENT, 0);
+							}
+						}
+					}
+				}
+			}
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
@@ -1120,6 +1175,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			titlestr01="Click 5.0 [ Exiting... ]";
 			SetWindowText (hwnd, titlestr01.c_str());
 			/*end:settitle*/ 
+			if (SendEditor(SCI_GETTEXTLENGTH) <= 0) {
+				programmeexiterrorstatusflag = 0;
+				DestroyWindow(hwnd);
+			}
 			inttmpnum = MessageBox (hwnd, "Do you want to save the changes before you quit?", "Exiting...", MB_YESNOCANCEL | MB_ICONQUESTION);
 			if (inttmpnum == IDYES) {
 				if ((!fsaved && !fopend) || strcmp(szFileName, "Untitled") == 0) {

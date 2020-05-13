@@ -44,6 +44,7 @@ MAINMENU MENU
 	//MENUITEM "Change Another Font", CM_CFONT
 	MENUITEM SEPARATOR
 	MENUITEM "&Import Settings", CM_IMPORTSET
+	MENUITEM "&Deve;oper Tools", CM_DT
  }
  
  POPUP "&Help"
