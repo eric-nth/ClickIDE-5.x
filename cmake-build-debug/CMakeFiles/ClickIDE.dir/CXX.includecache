@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/SciLexer.h
+
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/Sci_Position.h
+stddef.h
+-
+
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/Scintilla.h
+stdint.h
+-
+Sci_Position.h
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/Sci_Position.h
+
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.cpp
+windows.h
+-
+bits/stdc++.h
+-
+commctrl.h
+-
+commdlg.h
+-
+io.h
+-
+conio.h
+-
+tchar.h
+-
+main.h
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.h
+SciLexer.h
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/SciLexer.h
+Scintilla.h
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/Scintilla.h
+
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.h
+

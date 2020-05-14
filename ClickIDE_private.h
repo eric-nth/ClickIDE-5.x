@@ -5,19 +5,19 @@
 #define CLICKIDE_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"5.0.0.554"
+#define VER_STRING	"5.0.0.558"
 #define VER_MAJOR	5
 #define VER_MINOR	0
 #define VER_RELEASE	0
-#define VER_BUILD	554
+#define VER_BUILD	558
 #define COMPANY_NAME	""
-#define FILE_VERSION	"5.0.0.554"
+#define FILE_VERSION	"5.0.0.558"
 #define FILE_DESCRIPTION	"ClickIDE 5.0.0 - Stable"
 #define INTERNAL_NAME	""
 #define LEGAL_COPYRIGHT	""
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	""
 #define PRODUCT_NAME	""
-#define PRODUCT_VERSION	"5.0.0.554"
+#define PRODUCT_VERSION	"5.0.0.558"
 
 #endif /*CLICKIDE_PRIVATE_H*/

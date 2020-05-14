@@ -1,3 +1,5 @@
+#undef UNICODE
+
 #include <windows.h>
 #include <bits/stdc++.h>
 #include <commctrl.h>
@@ -1089,6 +1091,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						strcat(tmpspaces, " ");
 					}
 					SendEditor(SCI_GETLINE, cursorpos-1, (LPARAM)getallcodetmpstr);
+					if (strchr(getallcodetmpstr, '{') != NULL) {
 					for (int i = strlen(getallcodetmpstr)-1; i >= 0; i--) {
 						if (getallcodetmpstr[i] == '{') {
 							strcat(tmpspaces, "\t");
@@ -1098,6 +1101,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						} else {
 							break;
 						}
+					}
 					}
 					PostMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS)-1), (LPARAM)tmpspaces);
 					break;
@@ -1261,13 +1265,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
     	/*MessageBox(NULL, "Loading SciLexer_x64.dll...", "ClickIDE", MB_OK);
     	Sleep(500);
     	keybd_event(VK_RETURN, 0, 0, 0);*/
-        hDLL = LoadLibrary(TEXT("SciLexer_x64.dll"));  
+        hDLL = LoadLibrary(TEXT("SciLexer_x86"));
 		if (hDLL == NULL) {
-			MessageBox(NULL, "Error: SciLexer_x64.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
+			MessageBox(NULL, "Error: SciLexer_x86.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
 			return 0;
 		}
     } else {
-      	hDLL = LoadLibrary(TEXT("SciLexer_x86.dll"));  
+      	hDLL = LoadLibrary(TEXT("SciLexer_x86"));
 		if (hDLL == NULL) {
 			MessageBox(NULL, "Error: SciLexer_x86.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
 			return 0; 

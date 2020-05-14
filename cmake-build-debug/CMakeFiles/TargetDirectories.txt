@@ -1,0 +1,3 @@
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/CMakeFiles/ClickIDE.dir
+D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/CMakeFiles/edit_cache.dir
