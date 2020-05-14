@@ -8,28 +8,28 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug"/>
+				<Option working_dir="D:/GitHub/ClickIDE-5.x/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug"/>
+				<Option working_dir="D:/GitHub/ClickIDE-5.x/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="ClickIDE">
-				<Option output="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/ClickIDE.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug"/>
+				<Option output="D:/GitHub/ClickIDE-5.x/cmake-build-debug/ClickIDE.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/GitHub/ClickIDE-5.x/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -42,15 +42,15 @@
 					<Add directory="d:\mingw\bin\../lib/gcc/mingw32/8.2.0/include-fixed"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 ClickIDE"/>
-					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 ClickIDE"/>
+					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="ClickIDE/fast">
-				<Option output="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/ClickIDE.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug"/>
+				<Option output="D:/GitHub/ClickIDE-5.x/cmake-build-debug/ClickIDE.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/GitHub/ClickIDE-5.x/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -63,33 +63,33 @@
 					<Add directory="d:\mingw\bin\../lib/gcc/mingw32/8.2.0/include-fixed"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 ClickIDE/fast"/>
-					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 ClickIDE/fast"/>
+					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug"/>
+				<Option working_dir="D:/GitHub/ClickIDE-5.x/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/MinGW/bin/mingw32-make.exe -f &quot;D:/GitHub/ClickIDE-5.x/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/ClickIDE_private.rc">
+		<Unit filename="D:/GitHub/ClickIDE-5.x/ClickIDE_private.rc">
 			<Option target="ClickIDE"/>
 		</Unit>
-		<Unit filename="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.cpp">
+		<Unit filename="D:/GitHub/ClickIDE-5.x/main.cpp">
 			<Option target="ClickIDE"/>
 		</Unit>
-		<Unit filename="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.h">
+		<Unit filename="D:/GitHub/ClickIDE-5.x/main.h">
 			<Option target="ClickIDE"/>
 		</Unit>
-		<Unit filename="D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/CMakeLists.txt">
+		<Unit filename="D:/GitHub/ClickIDE-5.x/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

@@ -32,3 +32,6 @@
 #others
 cmd.bat
 ffmpeg.exe
+
+#CLion files
+/.idea/

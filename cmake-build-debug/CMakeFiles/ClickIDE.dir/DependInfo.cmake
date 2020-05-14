@@ -5,7 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/main.cpp" "D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/CMakeFiles/ClickIDE.dir/main.cpp.obj"
+  "D:/GitHub/ClickIDE-5.x/main.cpp" "D:/GitHub/ClickIDE-5.x/cmake-build-debug/CMakeFiles/ClickIDE.dir/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -13,7 +13,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   )
 set(CMAKE_DEPENDS_CHECK_RC
-  "D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/ClickIDE_private.rc" "D:/GitHub/ClickIDE-5.x/ClickIDE-5.x-cmake-rebuild/cmake-build-debug/CMakeFiles/ClickIDE.dir/ClickIDE_private.rc.obj"
+  "D:/GitHub/ClickIDE-5.x/ClickIDE_private.rc" "D:/GitHub/ClickIDE-5.x/cmake-build-debug/CMakeFiles/ClickIDE.dir/ClickIDE_private.rc.obj"
   )
 
 # The include file search paths:
