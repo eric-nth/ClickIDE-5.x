@@ -1233,10 +1233,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	clock_t programstarttime = clock();
     SafeGetNativeSystemInfo(&si);  
     HWND loaddllmbhwnd;
-    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ) {  
-    	/*MessageBox(NULL, "Loading SciLexer_x64.dll...", "ClickIDE", MB_OK);
-    	Sleep(500);
-    	keybd_event(VK_RETURN, 0, 0, 0);*/
+    /*
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ) {
         hDLL = LoadLibrary(TEXT("SciLexer_x86"));
 		if (hDLL == NULL) {
 			MessageBox(NULL, "Error: SciLexer_x86.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
@@ -1249,6 +1247,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			return 0; 
 		}
 	}
+    */
+    hDLL = LoadLibrary(TEXT("SciLexer"));
+    if (hDLL == NULL) {
+        MessageBox(NULL, "Error: SciLexer.dll Not found.\n\tPlease contact the software supporting team.\nFatal: Unable to register window class: \"Scintilla\".\nExecution failed.", "Click 5.0", MB_ICONHAND | MB_OK);
+        return 0;
+    }
 	if (strcmp(lpCmdLine, "") != 0) {
 		hasstartopenfile = 1;
 		if (_access(lpCmdLine, W_OK) == -1) {
