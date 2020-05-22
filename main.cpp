@@ -481,6 +481,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		case WM_COMMAND:
 			switch(LOWORD(wParam)) {
+			    case CM_FILE_NEW: {
+			        GetModuleFileName(NULL, szFileNametmp, MAX_PATH*10);
+			        ShellExecute(NULL, "open", szFileNametmp, "", "", SW_SHOWNORMAL);
+			        break;
+			    }
 				case CM_LOADFILE: {
 					if(!LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), szFileName)) {
 						MessageBox(hwnd, "Load of file failed.", "Error",MB_OK|MB_ICONEXCLAMATION);
@@ -729,10 +734,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					/*end:settitle*/ 
 					sprintf (cmdbuf1, "%s 2> %s_compile_tmp.log", compileordertmp.c_str(),szFileName);
 					sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" /max %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
-					sprintf (cmdbuf3, "del \"%s.exe\"",getcppfn(szFileName).c_str());
-					sprintf (cmdbuf4, "del \"%s_compile_tmp.log\"",szFileName);
+					sprintf (cmdbuf3, "%s.exe",getcppfn(szFileName).c_str());
+					sprintf (cmdbuf4, "%s_compile_tmp.log",szFileName);
 					sprintf (cmdbuf5, "%s_compile_tmp.log",szFileName);
-					runprocess (cmdbuf3, 1, 0);
+					remove(cmdbuf3);//runprocess (cmdbuf3, 1, 0);
 					runprocess (cmdbuf1, 1, 0);
 					wndfin.open (cmdbuf5);
 					while (wndfin) {
@@ -758,7 +763,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						Addinfo(compileresult);
 						SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"..."); 
 					}
-					runprocess (cmdbuf4, 1, 0);
+					remove(cmdbuf4);//runprocess (cmdbuf4, 1, 0);
 					/*settitle*/ 
 					titlestr01="Click 5.0 [ ";
 					titlestr01+=szFileName;
@@ -1133,43 +1138,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			}
 			//if (SendEditor(SCI_GETCHARAT, cursorpos) == '{') {PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\r\n\t\r\n}");}
 			cursorpos = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
-			if (/*cursorpos != 0*/0) {
-				if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
-					SendEditor(SCI_GETLINE, cursorpos-1, (LPARAM)getallcodetmpstr);
-					Addinfo("");
-					inttmpnum = 0;
-					for (int i = 0; i < strlen(getallcodetmpstr); i++) {
-						if (getallcodetmpstr[i] == '\t') {
-							inttmpnum += 4;
-						} else if (getallcodetmpstr[i] == ' ') {
-							inttmpnum += 1; 
-						} else {
-							break;
-						}
-					}
-					codealltmp.clear();
-					for (int i = 0; i < inttmpnum / 4; i++) {
-						codealltmp += "\t";
-					}
-					for (int i = 0; i < inttmpnum % 4; i++) {
-						codealltmp += " ";
-					}
-					PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)codealltmp.c_str());
-					
-					//Addinfo(i_to_str(inttmpnum).c_str());
-				}
-			}
-			if (cursorpos != 0) {
-				if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
-					if (SendEditor(SCI_POSITIONFROMLINE, cursorpos) == SendEditor(SCI_GETCURRENTPOS)) {
-						if (SendEditor(SCI_GETLINEINDENTATION, cursorpos-1) > 0) {
-							if (SendEditor(SCI_GETLINEINDENTATION, cursorpos) <= 0) {
-						PostMessage(hwnd, WM_COMMAND, CM_CHECKINDENT, 0);
-							}
-						}
-					}
-				}
-			}
+
 			break;
 		/*
 		case WM_CTLCOLOREDIT: {
@@ -1185,7 +1154,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				case SCN_CHARADDED: {
 					if (notify->ch == '\r' || notify->ch == '\n') {
 						char linebuf[10000];
-						Addinfo("Line");
+						//Addinfo("Line");(Success)
 					}
 					break;
 				}
@@ -1196,6 +1165,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(g_hStatusBar, SB_SETTEXT, 1, (LPARAM)"Exitting..."); 
 			/*settitle*/ 
 			titlestr01="Click 5.0 [ Exiting... ]";
+            sprintf (cmdbuf4, "%s_compile_tmp.log",szFileName);
+            remove(cmdbuf4);
 			SetWindowText (hwnd, titlestr01.c_str());
 			/*end:settitle*/ 
 			if (SendEditor(SCI_GETTEXTLENGTH) <= 0) {
@@ -1216,7 +1187,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						MessageBox(hwnd, "Save file failed.\n(Or this is an empty file.)", "Error",MB_OK|MB_ICONEXCLAMATION);
 						fsaved=0;
 					} else {
-						remove(szFileName2);
+                        sprintf(cmdbuf4, "%s.clickide.autosave.txt",szFileName);
+                        remove(cmdbuf4);
 					}
 				}
 				PostMessage(hwnd, WM_COMMAND, CM_FILE_SAVEAS, 0);
