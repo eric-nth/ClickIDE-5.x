@@ -669,8 +669,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						}
 						sprintf(cmdbuf3, "Running program: \r\n%s.exe", getcppfn(szFileName).c_str());
 						Addinfo(cmdbuf3);
-						sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
-						runprocess (cmdbuf2, 0, 1);
+                        sprintf (cmdbuf2, "%s.exe",getcppfn(szFileName).c_str());//sprintf (cmdbuf2, "start \"Click5.0-Executing [%s.exe]\" %s.exe",getcppfn(szFileName).c_str(),getcppfn(szFileName).c_str());
+						ShellExecute(NULL, "open", cmdbuf2, "", "", SW_SHOWNORMAL);//runprocess (cmdbuf2, 0, 1);
 					} else {
 						//MessageBox (hwnd, "You haven't compiled this file yet (or have failed in it),\nPlease compile it first!", "Can't Run!", MB_OK | MB_ICONERROR);
 						sprintf(cmdbuf3, "Unable to run program: \r\nPlease compile it (correctly) first.");
