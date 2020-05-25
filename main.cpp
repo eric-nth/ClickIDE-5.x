@@ -751,6 +751,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					}
 					wndfin.close();
 					SendEditor(SCI_SETCURSOR, SC_CURSORNORMAL);
+					if (_access(cmdbuf3, X_OK) != -1) { //Exist
+                        if (errreportcnt>1) {
+                            
+                        }
+					}
 					if (errreportcnt>1) {
 						sprintf(compileresult, "Compilation Result\r\nOrder: %s\r\nCompiler output: %s\r\nResult: Failed.", cmdbuf1, errreporti.c_str());
 						Addinfo(compileresult);
@@ -1077,6 +1082,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					SendMessage(hwnd, WM_COMMAND, CM_FILE_SAVE, 0);
 					break;
 				}
+				case CM_SETCURPOS: {
+				    SendEditor(SCI_SETCURRENTPOS, HIWORD(wParam));
+				}
+				/*
 				case CM_CHECKINDENT: {
 					if (SendEditor(SCI_GETLINEINDENTATION, cursorpos-1) <= 0) {
 						break;
@@ -1110,7 +1119,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					}
 					PostMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS)-1), (LPARAM)tmpspaces);
 					break;
-				}
+				}*/
 			}
 			hMenu = GetMenu(hwnd);
 			hFileMenu = GetSubMenu(hMenu, 0);
@@ -1152,9 +1161,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SCNotification* notify = (SCNotification*)lParam;
 			switch (notify->nmhdr.code) {
 				case SCN_CHARADDED: {
-					if (notify->ch == '\r' || notify->ch == '\n') {
-						char linebuf[10000];
+					if (/*notify->ch == '\r' ||*/ notify->ch == '\r') {
+						//char linebuf[10000];
+                        cursorpos = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
 						//Addinfo("Line");(Success)
+                        char tmpspaces[1000];
+                        strcpy(tmpspaces, "");
+                        for (int i = 0; i < SendEditor(SCI_GETLINEINDENTATION, cursorpos-1); i++) {
+                            strcat(tmpspaces, " ");
+                        }
+                        SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS) + 0), (LPARAM)tmpspaces);
+                        SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_SETCURPOS, SendEditor(SCI_GETCURRENTPOS) + SendEditor(SCI_GETLINEINDENTATION, cursorpos-1)), 0);//SendEditor(SCI_SETCURRENTPOS, SendEditor(SCI_GETCURRENTPOS)/* + SendEditor(SCI_GETLINEINDENTATION, cursorpos-1)*/);
+					    //SendEditor(SCI_SETCURRENTPOS, SendEditor(SCI_GETCURRENTPOS));
+                        SendEditor(SCI_GETSELECTIONEMPTY);
 					}
 					break;
 				}
