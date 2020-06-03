@@ -1,3 +1,25 @@
+ClickIDE 5.0.0 Build 0603
+
+----------------------------------------
+
+Project Information
+
+Author: EricNTH (https://ericnth.cn/)
+Use: g++ 8.2.0 CMake 3.16.5. You can compile this program yourself.
+Official Website: https://ericnth.cn/clickide
+Official Github Repository: https://github.com/EricNTH080103/ClickIDE-5.x
+OS Supported: Windows Vista/7/8/8.1/10 (Windows 10 is recommended.) Please contact with the author to get the WinXP Version.
+Computer hardware demand: 10MB RAM and 4MB Space needed.
+Program Function: To programme easily!
+Old version: https://github.com/EricNTH080103/ClickIDE
+
+----------------------------------------
+
+License Information & Agreements
+
+
+License for ClickIDE-5.x
+
 Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -186,7 +208,7 @@ Apache License
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright (c) 2020 EricNTH.
+   Copyright (c) 2019-2020 EricNTH <ericnth20080103@gmail.com>.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -199,3 +221,51 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+----------------------------------------
+
+License for Scintilla and SciTE
+
+Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+
+All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.
+
+NEIL HODGSON DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS, IN NO EVENT SHALL NEIL HODGSON BE LIABLE FOR ANY
+SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
+OR PERFORMANCE OF THIS SOFTWARE.
+
+----------------------------------------
+
+Building Information
+
+Program built by CMake 3.16.5 and mingw32 gcc 8.2.0.
+Special thanks to Jetbrains CLion.
+Compile Function depends on gcc-8.2.0 (g++.exe gcc.exe).
+
+----------------------------------------
+
+Library Dependencies: 
+SciLexer.dll, libgcc_s_dw2-1.dll, libstdc++-6.dll (Already provided in the program folder.)
+
+----------------------------------------
+
+Help Information
+
+How to use?
+Just type your code, and input compiling order and press Compile->Compile This File or press the "plane" button!
+(Compile order enviroment variables: %e: Path of Executable File; %f: Path of Current File)
+
+----------------------------------------
+
+END OF ClickIDE-5.x 5.0.0 LICENSE (FOR ALL BUILDS).

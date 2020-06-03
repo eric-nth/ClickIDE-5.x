@@ -164,6 +164,8 @@ BOOL SaveFile(HWND hEdit, LPSTR pszFileName) {
 }
 
 BOOL DoFileOpenSave(HWND hwnd, BOOL bSave) {
+    char szFileNameBackup[MAX_PATH*10];
+    strcpy(szFileNameBackup, szFileName);
 	OPENFILENAME ofn;
 
 	ZeroMemory(&ofn, sizeof(ofn));
@@ -185,6 +187,7 @@ BOOL DoFileOpenSave(HWND hwnd, BOOL bSave) {
 				return FALSE;
 			}
 		} else {
+            strcpy(szFileName, szFileNameBackup);
 			return FALSE;
 		}
 	} else {
@@ -196,6 +199,7 @@ BOOL DoFileOpenSave(HWND hwnd, BOOL bSave) {
 				return FALSE;
 			}
 		} else {
+		    strcpy(szFileName, szFileNameBackup);
 			return FALSE;
 		}
 	}
@@ -209,7 +213,7 @@ BOOL DoFileOpen(HWND hwnd, char rt[]) {
 	rt[0] = 0;
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = hwnd;
-	ofn.lpstrFilter = "        (*.ini)\0*.ini\0\0";
+	ofn.lpstrFilter = "Ini Setting File(*.ini)\0*.ini\0\0";
 	ofn.lpstrFile = rt;
 	ofn.nMaxFile = MAX_PATH*4;
 	ofn.lpstrDefExt = "";	
