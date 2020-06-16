@@ -6,15 +6,3 @@
 
 #IncludeRegexTransform: 
 
-D:/GitHub/ClickIDE-5.x/ClickIDE_private.rc
-windows.h
--
-resource.rc
-D:/GitHub/ClickIDE-5.x/resource.rc
-
-D:/GitHub/ClickIDE-5.x/main.h
-
-D:/GitHub/ClickIDE-5.x/resource.rc
-main.h
-D:/GitHub/ClickIDE-5.x/main.h
-

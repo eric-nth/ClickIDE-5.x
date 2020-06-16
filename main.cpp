@@ -17,7 +17,7 @@ bool tabwidthset = 0;
 string codealltmp = "";
 int wordsizepos = 2;
 int wsizes[16] = {4,8,11,12,14,16,18,20,22,24,30,36,48,60,72,96};
-string fontname = "Consolas";
+string fontname = "JetBrainsMono-1.0.3\\ttf\\JetBrainsMono-Regular.ttf";
 bool fsaved=0, fopend=0, fcompiled=0;
 bool programmeexiterrorstatusflag = 1;
 unsigned long long variMsgCnt = 0;
@@ -305,7 +305,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			CreateWindow("BUTTON", "Q",WS_CHILD|WS_VISIBLE|WS_BORDER,wwidth-120, 30, 100/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_COMPILENOW, GetModuleHandle(NULL), NULL);
 			CreateWindow("BUTTON", "<",WS_CHILD|WS_VISIBLE|WS_BORDER,wwidth-120, 130, 100/*CW_USEDEFAULT*/, 95,hwnd, (HMENU)ID_SAVENOW, GetModuleHandle(NULL), NULL);
 			
-			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//        
+			/*4.7*/hFont = CreateFont(wsizes[wordsizepos],0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,fontname.c_str());//
 			/*4.7*/hFont_ln = CreateFont(14,0,0,0,0,FALSE,FALSE,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_SWISS,"Consolas");//        
 			
 			/*4.7*/SendDlgItemMessage(hwnd, IDC_MAIN_TEXT, WM_SETFONT,(WPARAM)hFont/*GetStockObject(DEFAULT_GUI_FONT)*/, MAKELPARAM(TRUE,0));
