@@ -35,6 +35,30 @@ LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
 	return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
 }
 
+void GainAdminPrivileges(LPSTR cmdline, LPSTR executedir, UINT idd, BOOL bWait){
+
+    //strCmd.Format (_T("/adminoption %d"), idd);
+    char strCmd[MAX_PATH];
+    char strApp[MAX_PATH*10];
+    sprintf(strCmd, "/adminoption %d", idd);
+    sprintf(strApp, cmdline, idd);
+
+    SHELLEXECUTEINFO execinfo;
+    memset(&execinfo, 0, sizeof(execinfo));
+    execinfo.lpFile			= strApp;
+    execinfo.cbSize			= sizeof(execinfo);
+    execinfo.lpVerb			= TEXT("runas");
+    execinfo.fMask			= SEE_MASK_NOCLOSEPROCESS;
+    execinfo.nShow			= SW_SHOWDEFAULT;
+    execinfo.lpParameters	= strCmd;
+    execinfo.lpDirectory    = executedir;
+
+    ShellExecuteEx(&execinfo);
+
+    if(bWait)
+        WaitForSingleObject(execinfo.hProcess, INFINITE);
+}
+
 string output_time() {
 	time_t rawtime;
    	time(&rawtime);   
@@ -284,6 +308,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	DWORD dwTextLength;
 	int currentlinenum = 0;
 	int tabcount = 0;
+	char updatefilename[MAX_PATH*10];
+	char currentpath[MAX_PATH*10];
 	//char  linebuf[10000];
     //int  curLine  =  GetCurrentLineNumber();
     //int  lineLength  =  SendEditor(SCI_LINELENGTH,  curLine);
@@ -1057,6 +1083,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				case CM_WEBSITE: {
 					ShellExecute(NULL,TEXT("open"), TEXT("https://ericnth.cn/clickide/"), TEXT(""),NULL,SW_SHOWNORMAL);
 					break;
+				}
+				case CM_UPDATE: {
+				    GetModuleFileName(0, currentpath, MAX_PATH*10);
+				    strcat(currentpath, "\\..\\");
+				    sprintf(updatefilename, "%sclickupdate.exe", currentpath);
+                    GainAdminPrivileges(updatefilename, currentpath,1, 0);
+				    return 0;
 				}
 				case CM_ADDBRA: {
 					SendEditor(SCI_INSERTTEXT, -1, (LPARAM)lParam);

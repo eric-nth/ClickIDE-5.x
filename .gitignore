@@ -35,3 +35,7 @@ ffmpeg.exe
 
 #CLion files
 /.idea/
+/cmake-build-debug/CMakeFiles/
+/cmake-build-debug/*.cbp
+/cmake-build-debug/Makefile
+/cmake-build-debug/*.cmake

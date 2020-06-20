@@ -15,7 +15,10 @@ Old version: https://github.com/EricNTH080103/ClickIDE
 
 ----------------------------------------
 
-License Information & Agreements
+
+License Agreements
+
+
 
 
 License for ClickIDE-5.x
@@ -224,6 +227,12 @@ Apache License
 
 ----------------------------------------
 
+
+Licenses of open-source projects used in this program:
+
+
+
+
 License for Scintilla and SciTE
 
 Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
@@ -245,6 +254,48 @@ WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
 OR PERFORMANCE OF THIS SOFTWARE.
 
+
+
+
+MinGW Licensing Terms
+
+Each of the various packages, which is distributed by MinGW.org, is governed by its own individual copyright and licensing terms. In summary, for the most commonly deployed packages:
+
+MinGW Runtime: All releases of the MinGW base runtime package, prior to release 4.0, have been placed in the public domain, and are not governed by copyright. This basically means that you can do what you like with the code.
+Due to inadmissibility of the public domain concept, in certain jurisdictions, we have now chosen to adopt a MIT style license for the principal components of the MinGW runtime, from release 4.0 onwards; you may view this LICENSE(https://sourceforge.net/p/mingw/mingw-org-wsl/ci/21762bb4a1bd0c88c38eead03f59e8d994349e83/tree/LICENSE), as it is filed in the source code repository. Note that this new license does not carry forward to needing to distribution of said license when you use the MinGW Runtime to build your source. It only covers the distribution of the library, in source or binary form or any part thereof such as mingwm10.dll.
+
+w32api: In the case of releases prior to 4.0: you are free to use, modify and copy this package. No restrictions are imposed on programs or object files linked with this library. You may not restrict the the usage of this library. You may distribute this library as part of another package or as a modified package if, and only if, you do not restrict the usage of the portions consisting of this (optionally modified) library. If distributed as a modified package, then a copy of this notice must be included.
+This library is distributed in the hope that it will be useful, but WITHOUT WARRANTY OF ANY KIND; without even the implied warranties of MERCHANTABILITY or of FITNESS FOR A PARTICULAR PURPOSE.
+Due to inadmissibility of the public domain concept, in certain jurisdictions, we have now chosen to adopt a MIT style license for the principal components of the w32api, from release 4.0 onwards; you may view this LICENSE(https://sourceforge.net/p/mingw/mingw-org-wsl/ci/21762bb4a1bd0c88c38eead03f59e8d994349e83/tree/LICENSE), as it is filed in the source code repository. Note that this new license does not carry forward to needing to distribution of said license when you use the w32api to build your source. It only covers the distribution of the library, in source or binary form or any part thereof such as mingwm10.dll.
+
+WSL: We have combined the MinGW runtime package and the w32api package into one, which we have dubbed WSL, (an acronym for Windows System Libraries). We have applied a MIT style license to the sources, (where this does not conflict with any existing licenses applying to specific sub-components). You may view this LICENSE(https://sourceforge.net/p/mingw/mingw-org-wsl/ci/21762bb4a1bd0c88c38eead03f59e8d994349e83/tree/LICENSE), as it is filed in the source code repository. Note that this new license does not carry forward to needing to distribution of said license when you use the WSL to build your source. It only covers the distribution of the library, in source or binary form or any part thereof such as mingwm10.dll.
+MinGW Profiling Code: MinGW profiling code is distributed under the terms of the GNU General Public License, Version 2(http://www.gnu.org/licenses/old-licenses/gpl-2.0.html).
+Binutils, GCC, GDB, GNU Make: All of the GNU development tools, such as GNU binutils, GCC, GDB and GNU Make, are governed by the terms of the GNU General Public License(http://www.gnu.org/licenses/licenses.html#GPL); (note that this may be GPLv2 or GPLv3, depending on the preferences of the upstream maintainers, and the specific version of each package which you choose to install; in most cases, the most recent versions are likely to be GPLv3, while older versions may be GPLv2).
+
+
+
+
+License for 7-zip: 
+
+  GNU LGPL information
+  --------------------
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You can receive a copy of the GNU Lesser General Public License from
+    http://www.gnu.org/
+
+
+
+
 ----------------------------------------
 
 Building Information
@@ -255,7 +306,7 @@ Compile Function depends on gcc-8.2.0 (g++.exe gcc.exe).
 
 ----------------------------------------
 
-Library Dependencies: 
+Dependencies: 
 SciLexer.dll, libgcc_s_dw2-1.dll, libstdc++-6.dll (Already provided in the program folder.)
 
 ----------------------------------------

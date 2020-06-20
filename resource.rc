@@ -55,6 +55,7 @@ MAINMENU MENU
   MENUITEM "&See This Project on Github", CM_GITHUB
   MENUITEM SEPARATOR
   MENUITEM "&Flush StatusBar", CM_FLSTB
+  MENUITEM "Check for &Updates...", CM_UPDATE
   MENUITEM SEPARATOR
   MENUITEM "&Get Help...", CM_GHELP
   MENUITEM "&About...", CM_ABOUT

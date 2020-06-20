@@ -40,7 +40,8 @@
 #define CM_LOADFILE		9021
 #define CM_SAVEANDEXIT	9020
 #define CM_CHECKINDENT	9019
-#define CM_SETCURPOS   9018
+#define CM_SETCURPOS    9018
+#define CM_UPDATE       9017
 
 #define ID_STATUSBAR    4997
 #define ID_TOOLBAR		4998
