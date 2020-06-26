@@ -42,6 +42,7 @@
 #define CM_CHECKINDENT	9019
 #define CM_SETCURPOS    9018
 #define CM_UPDATE       9017
+#define CM_SELECTEMPTY  9016
 
 #define ID_STATUSBAR    4997
 #define ID_TOOLBAR		4998

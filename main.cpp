@@ -1122,6 +1122,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				case CM_SETCURPOS: {
 				    SendEditor(SCI_SETCURRENTPOS, HIWORD(wParam));
 				}
+				case CM_SELECTEMPTY: {
+				    SendEditor(SCI_GETSELECTIONEMPTY);
+				}
 				/*
 				case CM_CHECKINDENT: {
 					if (SendEditor(SCI_GETLINEINDENTATION, cursorpos-1) <= 0) {
@@ -1198,7 +1201,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SCNotification* notify = (SCNotification*)lParam;
 			switch (notify->nmhdr.code) {
 				case SCN_CHARADDED: {
-					if (/*notify->ch == '\r' ||*/ notify->ch == '\r') {
+					if (/*notify->ch == '\r' ||*/ notify->ch == '\n') {
 						//char linebuf[10000];
                         cursorpos = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
 						//Addinfo("Line");(Success)
@@ -1210,8 +1213,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
                         SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_ADDBRAEX, SendEditor(SCI_GETCURRENTPOS) + 0), (LPARAM)tmpspaces);
                         SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(CM_SETCURPOS, SendEditor(SCI_GETCURRENTPOS) + SendEditor(SCI_GETLINEINDENTATION, cursorpos-1)), 0);//SendEditor(SCI_SETCURRENTPOS, SendEditor(SCI_GETCURRENTPOS)/* + SendEditor(SCI_GETLINEINDENTATION, cursorpos-1)*/);
 					    //SendEditor(SCI_SETCURRENTPOS, SendEditor(SCI_GETCURRENTPOS));
-                        SendEditor(SCI_GETSELECTIONEMPTY);
+					    SendMessage(hwnd, WM_COMMAND, CM_SELECTEMPTY, 0);
 					}
+					if (notify->ch == '\"') {
+				        SendMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\"");
+					}
+					/*
+
+            if (SendEditor(SCI_GETCHARAT, cursorpos) == '\"' && needquotefill) {
+                PostMessage(hwnd, WM_COMMAND, CM_ADDBRA, (LPARAM)"\"");
+                needquotefill = 0;
+            }
+            if (SendEditor(SCI_GETCHARAT, cursorpos) == '\"' && needquotefill == 0) {
+                needquotefill = 1;
+            }
+					 */
 					break;
 				}
 			}
