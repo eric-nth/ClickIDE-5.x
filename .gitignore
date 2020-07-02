@@ -39,3 +39,4 @@ ffmpeg.exe
 /cmake-build-debug/*.cbp
 /cmake-build-debug/Makefile
 /cmake-build-debug/*.cmake
+/cmake-build-debug/ClickIDE-*.7z
