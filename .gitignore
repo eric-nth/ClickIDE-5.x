@@ -34,5 +34,5 @@ cmd.bat
 ffmpeg.exe
 
 #Build files
-/.idea/
-/cmake-build-debug/
+.idea/
+cmake-build-debug/
