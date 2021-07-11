@@ -1,15 +1,15 @@
-ClickIDE 5.0.0 Build 0603
+ClickIDE 5.0.0 Build 0711
 
 ----------------------------------------
 
 Project Information
 
 Author: EricNTH (https://ericnth.cn/)
-Use: g++ 8.2.0 CMake 3.16.5. You can compile this program yourself.
+Use: g++ 8.2.0 and CMake 3.16.5. You can compile this program yourself.
 Official Website: https://ericnth.cn/clickide
 Official Github Repository: https://github.com/EricNTH080103/ClickIDE-5.x
 OS Supported: Windows Vista/7/8/8.1/10 (Windows 10 is recommended.) Please contact with the author to get the WinXP Version.
-Computer hardware demand: 10MB RAM and 4MB Space needed.
+Computer hardware demand: 4MB RAM and 5MB Space needed.
 Program Function: To programme easily!
 Old version: https://github.com/EricNTH080103/ClickIDE
 

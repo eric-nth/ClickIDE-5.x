@@ -22,14 +22,14 @@
 #define CM_GHTML		9040
 #define CM_ASTYLE		9039
 #define CM_WLARGE		9038
-#define CM_WSMALL		9037 
+#define CM_WSMALL		9037
 #define CM_CFONT		9036
 #define CM_GITHUB		9035
 #define CM_WEBSITE		9034
 #define CM_IMPORTSET	9033
 #define CM_EXPORTSET	9032
 #define CM_EDIT_FIND	9031
-#define CM_DT			9030 
+#define CM_DT			9030
 #define CM_COMPILEBTN	9028
 #define CM_ADDBRA		9027
 #define CM_ADDBRAEX		9026
@@ -54,6 +54,6 @@
 #define ID_COMPILENOW	1005
 #define ID_SAVENOW		1006
 
-#define MARGIN_FOLD_INDEX 2 
+#define MARGIN_FOLD_INDEX 2
 
-#define KEY_PRESSED(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1:0) 
+#define KEY_PRESSED(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1:0)

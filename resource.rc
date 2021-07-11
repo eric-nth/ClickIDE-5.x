@@ -1,32 +1,28 @@
 #include "main.h"
 
-MAINMENU MENU 
-{
- POPUP "&File"
- {
-  MENUITEM "&New...", CM_FILE_NEW
-  MENUITEM "&Open...", CM_FILE_OPEN
-  MENUITEM "&Save", CM_FILE_SAVE, GRAYED
-  MENUITEM "Save &As...", CM_FILE_SAVEAS
+MAINMENU MENU {
+ POPUP "&File" {
+  MENUITEM "&New...\tCtrl+N", CM_FILE_NEW
+  MENUITEM "&Open...\tCtrl+O", CM_FILE_OPEN
+  MENUITEM "&Save\tCtrl+S", CM_FILE_SAVE, GRAYED
+  MENUITEM "Save &As...\tCtrl+Shift+S", CM_FILE_SAVEAS
   MENUITEM SEPARATOR
   MENUITEM "E&xit\tAlt+F4", CM_FILE_EXIT
  }
  
- POPUP "&Compile"
- {
- 	MENUITEM "&Compile This File...", CM_COMPILE
- 	MENUITEM "Compile &and Run This File...", CM_COMPILERUN
+ POPUP "&Compile" {
+ 	MENUITEM "&Compile This File...\tF7", CM_COMPILE
+ 	MENUITEM "Compile &and Run This File...\tF8", CM_COMPILERUN
  	MENUITEM SEPARATOR 
- 	MENUITEM "&Run This File", CM_RUN, GRAYED
- 	MENUITEM "Run This &Bat File", CM_RUNBAT
+ 	MENUITEM "&Run This File\tF9", CM_RUN, GRAYED
+ 	MENUITEM "Run This &Bat File\tF10", CM_RUNBAT
  	MENUITEM SEPARATOR
- 	MENUITEM "&Debug This C++ File...", CM_DEBUG, GRAYED
+ 	MENUITEM "&Debug This C++ File...\tF11", CM_DEBUG, GRAYED
  	MENUITEM SEPARATOR
- 	MENUITEM "&Start Command...", CM_STARTCMD
+ 	MENUITEM "&Start Command...\tF12", CM_STARTCMD
  }
  
- POPUP "&Edit"
- {	
+ POPUP "&Edit" {
     MENUITEM "&Undo\tCtrl+Z", CM_EDIT_UNDO
 	MENUITEM SEPARATOR
 	MENUITEM "Cu&t\tCtrl+X", CM_EDIT_CUT
@@ -46,19 +42,29 @@ MAINMENU MENU
 	MENUITEM "&Import Settings", CM_IMPORTSET
 	MENUITEM "&Deve;oper Tools", CM_DT
  }
- 
- POPUP "&Help"
- {
-  MENUITEM "View Variables...", CM_VVARI
-  MENUITEM SEPARATOR
-  MENUITEM "&Visit Our Site", CM_WEBSITE
-  MENUITEM "&See This Project on Github", CM_GITHUB
-  MENUITEM SEPARATOR
-  MENUITEM "&Flush StatusBar", CM_FLSTB
-  MENUITEM "Check for &Updates...", CM_UPDATE
-  MENUITEM SEPARATOR
-  MENUITEM "&Get Help...", CM_GHELP
-  MENUITEM "&About...", CM_ABOUT
- }
+ POPUP "&Help" {
+    MENUITEM "View Variables...", CM_VVARI
+    MENUITEM SEPARATOR
+    MENUITEM "&Visit Our Site", CM_WEBSITE
+    MENUITEM "&See This Project on Github", CM_GITHUB
+    MENUITEM SEPARATOR
+    MENUITEM "&Flush StatusBar", CM_FLSTB
+    MENUITEM "Check for &Updates...", CM_UPDATE
+    MENUITEM SEPARATOR
+    MENUITEM "&Get Help...", CM_GHELP
+    MENUITEM "&About...", CM_ABOUT
+}
 }
 
+MAINACCEL ACCELERATORS {
+    "N", CM_FILE_NEW, CONTROL, VIRTKEY
+    "O", CM_FILE_OPEN, CONTROL, VIRTKEY
+    "S", CM_FILE_SAVEAS, CONTROL, SHIFT, VIRTKEY
+    "S", CM_FILE_SAVE, CONTROL, VIRTKEY
+    VK_F7, CM_COMPILE, VIRTKEY
+    VK_F8, CM_COMPILERUN, VIRTKEY
+    VK_F9, CM_RUN, VIRTKEY
+    VK_F10, CM_RUNBAT, VIRTKEY
+    VK_F11, CM_DEBUG, VIRTKEY
+    VK_F12, CM_STARTCMD, VIRTKEY
+}

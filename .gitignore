@@ -33,10 +33,6 @@
 cmd.bat
 ffmpeg.exe
 
-#CLion files
+#Build files
 /.idea/
-/cmake-build-debug/CMakeFiles/
-/cmake-build-debug/*.cbp
-/cmake-build-debug/Makefile
-/cmake-build-debug/*.cmake
-/cmake-build-debug/ClickIDE-*.7z
+/cmake-build-debug/
