@@ -12,6 +12,7 @@
 #include "Scintilla.h"
 
 using namespace std;
+bool darktheme = 0;
 HWND hwnd;
 char fontname[32] = "Consolas";
 bool tabwidthset = 0;
@@ -30,6 +31,10 @@ const char* g_szKeywords="asm auto bool break case catch char class const const_
 vector<string> funclists;
 CHOOSEFONT cf;
 LOGFONT lf;
+const size_t MAX_FUNCSIZE=1000;
+size_t FUNCSIZE = 0;
+char g_szFuncList[MAX_FUNCSIZE][1024];
+char g_szFuncDesc[MAX_FUNCSIZE][256];
 
 LRESULT __stdcall SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) {
     return SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), Msg, wParam, lParam);
@@ -309,6 +314,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
     int currentlinenum = 0;
     int tabcount = 0;
     char updatefilename[MAX_PATH*10];
+    int brpos = 0;
     char currentpath[MAX_PATH*10];
     //char  linebuf[10000];
     //int  curLine  =  GetCurrentLineNumber();
@@ -443,29 +449,60 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
             /*
             *--4.7
             */
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, (LPARAM)0); //C++
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t)g_szKeywords);//   霉丶
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_WORD, 0x00FF0000);
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));// 址
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));// 址
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_NUMBER, RGB(144, 49, 150));// 址
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_PREPROCESSOR, RGB(84, 181, 153));//预   肟?
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(255, 0, 0));//
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENT, RGB(2, 122, 216));//  注
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTLINE, RGB(2, 122, 216));//  注
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC, RGB(2, 122, 250));// 牡 注 停 /**  头
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_INDENTGUIDE, RGB(128, 128, 128));
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_CONTROLCHAR, RGB(128, 128, 28));
 
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINTYPEN,0,(sptr_t)SC_MARGIN_NUMBER);
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN,0,(sptr_t)40);
+            if (!darktheme) {
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, (LPARAM) 0); //C++
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t) g_szKeywords);//   霉丶
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_WORD, 0x00FF0000);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_NUMBER, RGB(144, 49, 150));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_PREPROCESSOR,
+                            RGB(84, 181, 153));//预   肟?
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(255, 0, 0));//
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENT, RGB(2, 122, 216));//  注
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTLINE,
+                            RGB(2, 122, 216));//  注
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC,
+                            RGB(2, 122, 250));// 牡 注 停 /**  头
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_INDENTGUIDE, RGB(128, 128, 128));
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_CONTROLCHAR, RGB(128, 128, 28));
 
-            //SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_CLEARCMDKEY, (WPARAM)('F'+(SCMOD_CTRL<<16)), SCI_NULL);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINTYPEN, 0, (sptr_t) SC_MARGIN_NUMBER);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN, 0, (sptr_t) 40);
 
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETFONT, STYLE_DEFAULT,(sptr_t)"Consolas");
-            SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_STYLESETSIZE, STYLE_DEFAULT,11);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Consolas");
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETSIZE, STYLE_DEFAULT, 11);
+            } else {
+                /*
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETLEXER, SCLEX_CPP, (LPARAM) 0); //C++
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETKEYWORDS, 0, (sptr_t) g_szKeywords);//   霉丶
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_WORD, 0x00FF0000);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_STRING, RGB(10, 0, 255));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_CHARACTER, RGB(91, 74, 68));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_NUMBER, RGB(144, 49, 150));// 址
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_PREPROCESSOR,
+                            RGB(84, 181, 153));//预   肟?
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(255, 0, 0));//
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENT, RGB(2, 122, 216));//  注
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTLINE,
+                            RGB(2, 122, 216));//  注
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, SCE_C_COMMENTDOC,
+                            RGB(2, 122, 250));// 牡 注 停 /**  头
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEVISIBLE, TRUE, 0);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETCARETLINEBACK, 0xb0ffff, 0);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_INDENTGUIDE, RGB(128, 128, 128));
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFORE, STYLE_CONTROLCHAR, RGB(128, 128, 28));
+
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINTYPEN, 0, (sptr_t) SC_MARGIN_NUMBER);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_SETMARGINWIDTHN, 0, (sptr_t) 40);
+
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t) "Consolas");
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETSIZE, STYLE_DEFAULT, 11);
+                SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT), SCI_STYLESETBACK, STYLE_DEFAULT, (LPARAM)RGB(0x22, 0x27, 0x2e));*/
+            }
 
             //Code Folding
             SendMessage(GetDlgItem(hwnd, IDC_MAIN_TEXT),SCI_SETPROPERTY,(sptr_t)"fold",(sptr_t)"1");
@@ -491,6 +528,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
             SendEditor(SCI_SETFOLDFLAGS, 16|4, 0); //如果折叠就在折叠行的上下各画一条横线
 
+            SendEditor(SCI_SETINDENT, 0);
+
             if (hasstartopenfile) {
                 LoadFile(GetDlgItem(hwnd, IDC_MAIN_TEXT), commandline);
                 strcpy(szFileName, commandline);
@@ -499,7 +538,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
             }
 
             cf.iPointSize = 11;
+            strcpy(lf.lfFaceName, fontname);
 
+
+            wndfin.open("capis.txt");
+
+            while(wndfin.good() && FUNCSIZE < MAX_FUNCSIZE && (!wndfin.eof())) {
+                wndfin.getline(g_szFuncDesc[FUNCSIZE], 1024, '\n');
+                strcpy(g_szFuncList[FUNCSIZE], g_szFuncDesc[FUNCSIZE]);
+                strtok(g_szFuncList[FUNCSIZE], "(");
+                strcat(g_szFuncList[FUNCSIZE], "(");
+                FUNCSIZE++;
+            }
+            /*
+            while(wndfin.good() && FUNCSIZE < MAX_FUNCSIZE && (!wndfin.eof())) {
+                wndfin.getline(g_szFuncDesc[FUNCSIZE], 1024, '\n');
+                strcpy(g_szFuncList[FUNCSIZE], strtok(g_szFuncDesc[FUNCSIZE], "("));
+                MessageBox(NULL, g_szFuncDesc[FUNCSIZE], g_szFuncList[FUNCSIZE], MB_OK);
+                FUNCSIZE++;
+            }
+            */
+            wndfin.close();
+
+            
             return 0;
             break;
         case WM_SIZE:
@@ -1195,11 +1256,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
             static int LastProcessedChar = 0;
             switch (notify->nmhdr.code) {
                 case SCN_CHARADDED: {
+                    LastProcessedChar = notify->ch;
                     static const char* pCallTipNextWord = NULL;//下一个高亮位置
                     static const char* pCallTipCurDesc = NULL;//当前提示的函数信息
+                    /*
+                    if (notify->ch == '\n') {
+                        SendEditor(SCI_SETLINEINDENTATION, , 8);
+                    }
+                     */
                     if(notify->ch == '(') //如果输入了左括号，显示函数提示
                     {
-                        /*
                         char word[1000]; //保存当前光标下的单词(函数名)
                         Sci_TextRange tr;    //用于SCI_GETTEXTRANGE命令
                         int pos = SendEditor(SCI_GETCURRENTPOS); //取得当前位置（括号的位置）
@@ -1209,71 +1275,86 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
                         tr.chrg.cpMax = endpos;
                         tr.lpstrText = word;
                         SendEditor(SCI_GETTEXTRANGE,0, sptr_t(&tr));
-                        const size_t FUNCSIZE=2;
-                        char* g_szFuncList[FUNCSIZE]={ //函数名
-                                "CreateWindow(",
-                                "MoveWindow("
-                        };
-                        char* g_szFuncDesc[FUNCSIZE]={ //函数信息
-                                "HWND CreateWindow("
-                                "LPCTSTR lpClassName,"
-                                " LPCTSTR lpWindowName,"
-                                " DWORD dwStyle, "
-                                " int x,"
-                                " int y,"
-                                " int nWidth,"
-                                " int nHeight, "
-                                " HWND hWndParent,"
-                                " HMENU hMenu,"
-                                " HANDLE hInstance,"
-                                " PVOID lpParam"
-                                ")",
-                                "BOOL MoveWindow("
-                                "HWND hWnd,"
-                                " int X,"
-                                " int Y,"
-                                " int nWidth,"
-                                " int nHeight,"
-                                " BOOL bRepaint"
-                                ")"
-                        };
-                        for(size_t i=0; i<FUNCSIZE; i++) //找找有没有我们认识的函数？
-                        {
-                            if(memcmp(g_szFuncList[i],word,sizeof(g_szFuncList[i])) == 0)
-                            {     //找到啦，那么显示提示吧
-                                pCallTipCurDesc = g_szFuncDesc[i]; //当前提示的函数信息
-                                SendEditor(SCI_CALLTIPSHOW,pos,sptr_t(pCallTipCurDesc));//显示这个提示
-                                const char *pStart = strchr(pCallTipCurDesc,'(')+1; //高亮第一个参数
-                                const char *pEnd = strchr(pStart,',');//参数列表以逗号分隔
-                                if(pEnd == NULL) pEnd = strchr(pStart,')');//若是最后一个参数，后面是右括号
+                        for(size_t i=0; i<FUNCSIZE; i++) {
+                            if(strcmp(g_szFuncList[i],word) == 0/*memcmp(g_szFuncList[i],word,sizeof(g_szFuncList[i])) == 0*/) {
+                                pCallTipCurDesc = g_szFuncDesc[i];
+                                SendEditor(SCI_CALLTIPSHOW,pos,sptr_t(pCallTipCurDesc));
+                                const char *pStart = strchr(pCallTipCurDesc,'(')+1;
+                                const char *pEnd = strchr(pStart,',');
+                                if(pEnd == NULL) pEnd = strchr(pStart,')');
                                 SendEditor(SCI_CALLTIPSETHLT,
                                            pStart-pCallTipCurDesc, pEnd-pCallTipCurDesc);
-                                pCallTipNextWord = pEnd+1;//指向下一参数位置
+                                pCallTipNextWord = pEnd+1;
                                 break;
                             }
                         }
                     }
-                    else if(notify->ch == ')') //如果输入右括号，就关闭函数提示
-                    {
+                    else if(notify->ch == ')') {
                         SendEditor(SCI_CALLTIPCANCEL);
                         pCallTipCurDesc = NULL;
                         pCallTipNextWord = NULL;
-                    }
-                    else if(notify->ch == ',' && SendEditor(SCI_CALLTIPACTIVE) && pCallTipCurDesc)
-                    {
-                        //输入的是逗号，高亮下一个参数
+                    } else if(notify->ch == ',' && SendEditor(SCI_CALLTIPACTIVE) && pCallTipCurDesc) {
                         const char *pStart = pCallTipNextWord;
                         const char *pEnd = strchr(pStart,',');
                         if(pEnd == NULL) pEnd = strchr(pStart,')');
-                        if(pEnd == NULL) //没有下一个参数啦，关闭提示
-                            SendEditor(SCI_CALLTIPCANCEL);
-                        else
-                        {
+                        if(pEnd == NULL) SendEditor(SCI_CALLTIPCANCEL);
+                        else {
                             SendEditor(SCI_CALLTIPSETHLT,pStart-pCallTipCurDesc, pEnd-pCallTipCurDesc);
                             pCallTipNextWord = pEnd+1;
-                        }*/
+                        }
                     }
                     break;
+                }
+                case SCN_UPDATEUI: {
+                    if (LastProcessedChar != 0) {
+                        int pos = SendEditor(SCI_GETCURRENTPOS); //取得当前位置
+                        int line = SendEditor(SCI_LINEFROMPOSITION,pos); //取得当前行
+                        //如果最后输入的字符是右括号的话就自动让当前行缩进和它匹配的左括号所在行一致
+                        if( strchr("})>]",LastProcessedChar) &&
+                            isspace(SendEditor(SCI_GETCHARAT,pos-2)) && //要求右括号左边是空白字符
+                            LastProcessedChar!=0)
+                        {
+                            //找前一个单词起始位置，这里用它来确定右括号左边是否全是空白字符
+                            int startpos = SendEditor(SCI_WORDSTARTPOSITION,pos-1,false);
+                            int linepos = SendEditor(SCI_POSITIONFROMLINE,line); //当前行起始位置
+                            if(startpos == linepos) //这样相当于判断右括号左边是否全是空白字符
+                            {
+                                int othpos = SendEditor(SCI_BRACEMATCH,pos-1); //得到对应的左括号所在的位置
+                                int othline = SendEditor(SCI_LINEFROMPOSITION,othpos);  //左括号所在行
+                                int nIndent = SendEditor(SCI_GETLINEINDENTATION,othline);//左括号所在行的缩进值
+                                // 替换右括号前面的空白字符，使之与左括号缩进一致
+                                char space[1024];
+                                memset(space,' ',1024);
+                                SendEditor(SCI_SETTARGETSTART, startpos);
+                                SendEditor(SCI_SETTARGETEND, pos-1);
+                                SendEditor(SCI_REPLACETARGET,nIndent,(sptr_t)space);
+                            }
+                        }
+                        // 如果输入的是回车，则保持与上一行缩进一致
+                        // 如果上一行最后有效字符为左括号，就多缩进四个空格
+                        if(LastProcessedChar == '\n')
+                        {
+                            if(line > 0)
+                            {
+                                // 得到上一行缩进设置
+                                int nIndent = SendEditor(SCI_GETLINEINDENTATION,line-1);
+                                // 查找上一行最后一个有效字符（非空白字符）
+                                int nPrevLinePos = SendEditor(SCI_POSITIONFROMLINE,line-1);
+                                int c = ' ';
+                                for(int p = pos-2;
+                                    p>=nPrevLinePos && isspace(c);
+                                    p--, c=SendEditor(SCI_GETCHARAT,p));
+                                // 如果是左括号，就多缩进四格
+                                if(c && strchr("{([<",c)) nIndent+=4;
+                                // 缩进...
+                                char space[1024];
+                                memset(space,' ',1024);
+                                space[nIndent] = 0;
+                                SendEditor(SCI_REPLACESEL, 0, (sptr_t)space);
+                            }
+                        }
+                        LastProcessedChar = 0;
+                    }
                 }
                 case SCN_MARGINCLICK: {
                     const int line_number = SendEditor(SCI_LINEFROMPOSITION,notify->position);
